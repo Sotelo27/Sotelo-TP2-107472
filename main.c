@@ -83,7 +83,12 @@ int main(int argc, char *argv[])
 	const char *nombre1 = "Pikachu";
 	const char *nombre2 = "Cacnea";
 	const char *nombre3 = "Charmander";
+	JUGADOR jugador2 = JUGADOR2;
 	juego_seleccionar_pokemon(j,jugador,nombre1,nombre2,nombre3);
+	juego_seleccionar_pokemon(j,jugador2,nombre1,nombre2,nombre3);
+	jugada_t jugada_jugador1 = {"Charmander", "Lanzallamas"};
+	jugada_t jugada_jugador2 = {"Cacnea", "Absorber"};
+	juego_jugar_turno(j,jugada_jugador1,jugada_jugador2);
 	menu_ejecutar_comando(menu,linea,j);
 	menu_destruir(menu);
 }

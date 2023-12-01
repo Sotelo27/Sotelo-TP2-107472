@@ -15,11 +15,11 @@ struct datos_jugador{
 };
 
 struct juego {
-	informacion_pokemon_t *informacion_pokemon;
 	lista_t *lista_pokemon;
 	bool estado_juego;
 	struct datos_jugador jugador_1;
 	struct datos_jugador jugador_2;
+	int turnos;
 };
 
 
@@ -31,8 +31,7 @@ juego_t *juego_crear()
 		return NULL;
 	}
 	juego->lista_pokemon = NULL;
-	juego->informacion_pokemon = NULL;
-	juego->estado_juego = true;
+	juego->estado_juego = false;
 	return juego;
 }
 
@@ -68,7 +67,6 @@ JUEGO_ESTADO juego_cargar_pokemon(juego_t *juego, char *archivo)
 		juego_destruir(juego);
 		return POKEMON_INSUFICIENTES;
 	}
-	juego->informacion_pokemon = pokemon_info;
 	return TODO_OK;
 }
 
@@ -80,6 +78,8 @@ lista_t *juego_listar_pokemon(juego_t *juego)
 	return juego->lista_pokemon;
 }
 
+
+//comparador de nombres
 int comparador(void *pokemon, void *nombre) {
     pokemon_t* aux_pokemon = (pokemon_t*)pokemon;
     const char *nombre_pokemon = (const char *)nombre;
@@ -95,6 +95,7 @@ int comparador(void *pokemon, void *nombre) {
     return -1;
 }
 
+//solo de prueba boorar despues
 bool mostra_pokemon(void *p,void * contexto){
 	printf("Nombre: %s\n",pokemon_nombre(p));
 	return true;
@@ -121,6 +122,9 @@ JUEGO_ESTADO juego_seleccionar_pokemon(juego_t *juego, JUGADOR jugador,
 	}
 	lista_t * pokemones ;
 	pokemones = lista_crear();
+	if (!pokemones){
+		return ERROR_GENERAL;
+	}
 	pokemones = lista_insertar(pokemones,pokemon_1);
 	pokemones = lista_insertar(pokemones,pokemon_2);
 	pokemones = lista_insertar(pokemones,pokemon_3);
@@ -131,12 +135,36 @@ JUEGO_ESTADO juego_seleccionar_pokemon(juego_t *juego, JUGADOR jugador,
 		juego->jugador_2.pokemones = lista_crear();
 		juego->jugador_2.pokemones = pokemones;
 	}
-	
-	lista_con_cada_elemento(juego->jugador_2.pokemones,mostra_pokemon,NULL);
-	printf("esta es la prueba\n");
-	//guarda_pokemon_seleccionados(juego, jugador, pokemon_1, pokemon_2,
-				     //pokemon_3);
 	return TODO_OK;
+}
+
+// solo de prueba borrar despues
+void mostrar_ataque(const struct ataque *a, void *aux)
+{
+	printf("%s: %i\n", a->nombre, a->poder);
+}
+
+
+// FUNCION LAUTARO MARITN SOTELO
+int comprobar_eficacia_ataque(pokemon_t *pokemon, const struct ataque *ataque_1) {
+    int ataque_eficacia = 2; // Inicializo en 2, reprensenta que el ataque es regular, 1 representa que fue efectivo y 0 representa que es inefectivo.
+
+    if ((pokemon_tipo(pokemon)== PLANTA && ataque_1->tipo == FUEGO) ||
+        (pokemon_tipo(pokemon)== ROCA && ataque_1->tipo == PLANTA) ||
+        (pokemon_tipo(pokemon)== ELECTRICO && ataque_1->tipo == ROCA) ||
+        (pokemon_tipo(pokemon)== AGUA && ataque_1->tipo == ELECTRICO) ||
+        (pokemon_tipo(pokemon)== FUEGO && ataque_1->tipo == AGUA)) {
+        ataque_eficacia = 1; // El ataque es efectivo
+    } else if ((pokemon_tipo(pokemon)== FUEGO && ataque_1->tipo == PLANTA) ||
+               (pokemon_tipo(pokemon)== PLANTA && ataque_1->tipo == ROCA) ||
+               (pokemon_tipo(pokemon)== ROCA && ataque_1->tipo == ELECTRICO) ||
+               (pokemon_tipo(pokemon)== ELECTRICO && ataque_1->tipo == AGUA) ||
+               (pokemon_tipo(pokemon)== AGUA && ataque_1->tipo == FUEGO)) {
+        ataque_eficacia = 0; // El ataque es inefectivo
+    } else if (pokemon_tipo(pokemon)== ataque_1->tipo || ataque_1->tipo == NORMAL) {
+        ataque_eficacia = 2; // El ataque es neutral o tipo NORMAL
+    }
+    return ataque_eficacia;
 }
 
 resultado_jugada_t juego_jugar_turno(juego_t *juego, jugada_t jugada_jugador1,
@@ -145,17 +173,48 @@ resultado_jugada_t juego_jugar_turno(juego_t *juego, jugada_t jugada_jugador1,
 	resultado_jugada_t resultado;
 	resultado.jugador1 = ATAQUE_ERROR;
 	resultado.jugador2 = ATAQUE_ERROR;
+	pokemon_t * pokemon_jugador_1 = lista_buscar_elemento(juego->jugador_1.pokemones,comparador,(void *)jugada_jugador1.pokemon) ;
+	if(!pokemon_jugador_1){
+		resultado.jugador1 = ATAQUE_ERROR;
+		return resultado;
+	}
+	pokemon_t * pokemon_jugador_2 = lista_buscar_elemento(juego->jugador_2.pokemones,comparador,(void *) jugada_jugador2.pokemon); 
+	if(!pokemon_jugador_2){
+		resultado.jugador2 = ATAQUE_ERROR;
+		return resultado;
+	}
+	const char * ataque_nombre_1 = jugada_jugador1.ataque;
+	const char * ataque_nombre_2 = jugada_jugador2.ataque;
+	const struct ataque * ataque_jugador_1 = pokemon_buscar_ataque(pokemon_jugador_1,ataque_nombre_1);
+	if (!ataque_jugador_1){
+		resultado.jugador1 = ATAQUE_ERROR;
+		return resultado;
+	}
+	const struct ataque * ataque_jugador_2 = pokemon_buscar_ataque(pokemon_jugador_2,ataque_nombre_2);
+	if (!ataque_jugador_2){
+		resultado.jugador2 = ATAQUE_ERROR;
+		return resultado;
+	}
+	int eficacia_ataque = comprobar_eficacia_ataque(pokemon_jugador_2,ataque_jugador_1);
+	
+	eficacia_ataque = comprobar_eficacia_ataque(pokemon_jugador_1,ataque_jugador_2);
+	
 	return resultado;
 }
 
 int juego_obtener_puntaje(juego_t *juego, JUGADOR jugador)
 {
+	if (jugador == JUGADOR1){
+		return juego->jugador_1.puntos;
+	}else if(jugador ==JUGADOR2){
+		return juego->jugador_2.puntos;
+	}
 	return 0;
 }
 
 bool juego_finalizado(juego_t *juego)
 {
-	return true;
+	return juego->estado_juego;
 }
 
 void juego_destruir(juego_t *juego)
