@@ -3,6 +3,8 @@
 #include "src/juego.h"
 #include "src/lista.h"
 #include "src/adversario.h"
+#include "stdlib.h"
+#include "src/hash.h"
 #include <stdio.h>
 
 /**
@@ -17,62 +19,66 @@
 * juego sea facil de utilizar.
 */
 
+typedef struct 
+{
+	hash_t* comandos;
+}menu_t;
+
+struct informacion_comando{
+	char* descripcion;
+	void (*funcion)(juego_t *);
+};
+
+menu_t* menu_crear(){
+	menu_t* m = calloc(1,sizeof(menu_t));
+	m->comandos = hash_crear(3);
+	return m;
+}
+void menu_agregar_comando(menu_t* m , char* comando, char* descripcion , void (*f)(juego_t*)){
+	struct informacion_comando *i = malloc(sizeof(struct informacion_comando));
+	i->descripcion = descripcion;
+	i->funcion = f;
+	hash_insertar(m->comandos,comando,i,NULL);
+}
+
+bool menu_ejecutar_comando(menu_t* m , char* comando , juego_t * contexto){
+	struct informacion_comando *i = hash_obtener(m->comandos,comando);
+	if (i){
+		i->funcion(contexto);
+		return true;
+	}
+	return false;
+}
+
+void menu_destruir(menu_t* m){
+	free(m);
+}
+
+bool mostrar_pokemon(void *p,void * contexto){
+	printf("Nombre: %s\n",pokemon_nombre(p));
+	return true;
+}
+
+void cargar_archivo(juego_t *j){
+
+}
+
+void listar_pokemones(juego_t *j){
+	lista_con_cada_elemento(juego_listar_pokemon(j),mostrar_pokemon,NULL);
+}
+
 int main(int argc, char *argv[])
 {
-	juego_t *juego = juego_crear();
-
-	//Pide al usuario un nombre de archivo de pokemones
-	char *archivo = pedir_archivo();
-
-	//Carga los pokemon
-	juego_cargar_pokemon(juego, archivo);
-
-	//Crea un adversario que será utilizado como jugador 2
-	adversario_t *adversario =
-		adversario_crear(juego_listar_pokemon(juego));
-
-	//Mostrar el listado de pokemones por consola para que el usuario sepa las opciones que tiene
-	mostrar_pokemon_disponibles(juego);
-
-	//Pedirle al jugador por consola que ingrese los 3 nombres de pokemon que quiere utilizar
-	char *eleccionJugador1, *eleccionJugador2, *eleccionJugador3;
-	jugador_seleccionar_pokemon(juego, &eleccion_adversario1,
-				    &eleccion_adversario2,
-				    &eleccion_adversario3);
-
-	//pedirle al adversario que indique los 3 pokemon que quiere usar
-	char *eleccionAdversario1, *eleccionAdversario2, *eleccionAdversario3;
-	adversario_seleccionar_pokemon(adversario, &eleccionAdversario1,
-				       &eleccionAdversario2,
-				       &eleccionAdversario3);
-
-	//Seleccionar los pokemon de los jugadores
-	juego_seleccionar_pokemon(juego, JUGADOR1, eleccionJugador1,
-				  eleccionJugador2, eleccionJugador3);
-	juego_seleccionar_pokemon(juego, JUGADOR2, eleccionAdversario1,
-				  eleccionAdversario2, eleccionAdversario3);
-
-	//informarle al adversario cuales son los pokemon del jugador
-	adversario_pokemon_seleccionado(adversario, eleccionJugador1,
-					eleccionJugador2, eleccionJugador3);
-
-	while (!juego_finalizado(juego)) {
-		resultado_jugada_t resultado_ronda;
-
-		//Pide al jugador que ingrese por consola el pokemon y ataque para la siguiente ronda
-		jugada_t jugada_jugador = jugador_pedir_nombre_y_ataque();
-
-		//Pide al adversario que informe el pokemon y ataque para la siguiente ronda
-		jugada_t jugada_adversario =
-			adversario_proxima_jugada(adversario);
-
-		//jugar la ronda y después comprobar que esté todo ok, si no, volver a pedir la jugada del jugador
-		resultado_ronda = juego_jugar_turno(juego, jugada_jugador,
-						    jugada_adversario);
-
-		//Si se pudo jugar el turno, le informo al adversario la jugada realizada por el jugador
-		adversario_informar_jugada(adversario, jugada_jugador);
-	}
-
-	juego_destruir(juego);
+	juego_t *j = juego_crear();
+	juego_cargar_pokemon(j,"ejemplos/correcto.txt");
+	menu_t *menu = menu_crear();
+	menu_agregar_comando(menu,"c","cargar un archivo",cargar_archivo);
+	menu_agregar_comando(menu,"l","Listar pokemones",listar_pokemones);
+	printf("Ingresa un comando a continuacion\n");
+	printf("TP2 > \n");
+	char linea[200];
+	fgets(linea,200,stdin);
+	linea[1] = 0;
+	menu_ejecutar_comando(menu,linea,j);
+	menu_destruir(menu);
 }

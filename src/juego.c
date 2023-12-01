@@ -4,20 +4,63 @@
 #include <stdbool.h>
 #include "pokemon.h"
 #include "ataque.h"
+#include "stdlib.h"
+
+struct juego {
+	informacion_pokemon_t * info_pokemon;
+	lista_t *lista_pokemon;
+};
 
 juego_t *juego_crear()
 {
-	return NULL;
+	juego_t *juego = malloc(sizeof(juego_t));
+	if (!juego) {
+		return NULL;
+	}
+	juego->lista_pokemon = NULL;
+	return juego;
+}
+
+
+//FUNCION DE LAUTARO MARTIN SOTELO
+//PRE: RECIBE EL POKEMON Y UN VOID QUE ES LA LISTA POKEMON.
+//POST: INSERTA CADA POKEMON EN LA LISTA.
+void insertar_pokemon_lista(pokemon_t * pokemon,void* lista_pokemon){
+	lista_pokemon = lista_insertar(lista_pokemon,pokemon);
 }
 
 JUEGO_ESTADO juego_cargar_pokemon(juego_t *juego, char *archivo)
 {
-	return ERROR_GENERAL;
+	if (juego == NULL || archivo == NULL) {
+		return ERROR_GENERAL;
+	}
+
+	// Creo una estructura para almacenar la información de los Pokémon
+	informacion_pokemon_t *pokemon_info = pokemon_cargar_archivo(archivo);
+	if (pokemon_info == NULL) {
+		return POKEMON_INSUFICIENTES;
+	}
+
+	if(!juego->lista_pokemon){
+		juego->lista_pokemon = lista_crear();
+		if(!juego->lista_pokemon){
+			return ERROR_GENERAL;
+		}
+	}
+	int cantidad_pokemon = con_cada_pokemon(pokemon_info,insertar_pokemon_lista,juego->lista_pokemon);
+	if(cantidad_pokemon < 4){
+		juego_destruir(juego);
+		return POKEMON_INSUFICIENTES;
+	}
+	return TODO_OK;
 }
 
 lista_t *juego_listar_pokemon(juego_t *juego)
 {
-	return NULL;
+	if(!juego){
+		return NULL;
+	}
+	return juego->lista_pokemon;
 }
 
 JUEGO_ESTADO juego_seleccionar_pokemon(juego_t *juego, JUGADOR jugador,
