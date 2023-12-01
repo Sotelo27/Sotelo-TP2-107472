@@ -79,6 +79,11 @@ int main(int argc, char *argv[])
 	char linea[200];
 	fgets(linea,200,stdin);
 	linea[1] = 0;
+	JUGADOR jugador = JUGADOR1;
+	const char *nombre1 = "Pikachu";
+	const char *nombre2 = "Cacnea";
+	const char *nombre3 = "Charmander";
+	juego_seleccionar_pokemon(j,jugador,nombre1,nombre2,nombre3);
 	menu_ejecutar_comando(menu,linea,j);
 	menu_destruir(menu);
 }

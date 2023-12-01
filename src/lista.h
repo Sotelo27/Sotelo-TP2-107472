@@ -66,7 +66,6 @@ void *lista_elemento_en_posicion(lista_t *lista, size_t posicion);
  */
 void *lista_buscar_elemento(lista_t *lista, int (*comparador)(void *, void *),
 			    void *contexto);
-
 /**
  * Devuelve el primer elemento de la lista o NULL si la lista se
  * encuentra vacía o no existe.
