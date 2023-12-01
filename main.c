@@ -89,6 +89,7 @@ int main(int argc, char *argv[])
 	juego_t *j = juego_crear();
 	juego_cargar_pokemon(j,"ejemplos/correcto.txt");
 	menu_t *menu = menu_crear();
+	adversario_t *adversario =adversario_crear(juego_listar_pokemon(j));
 	menu_agregar_comando(menu,"c","cargar un archivo",cargar_archivo);
 	menu_agregar_comando(menu,"l","Listar pokemones",listar_pokemones);
 	printf("TP2 > \n");
@@ -101,15 +102,20 @@ int main(int argc, char *argv[])
 			printf("\nEse comando no existe\n");
 		}
 		JUGADOR jugador = JUGADOR1;
-		const char *nombre1 = "Pikachu";
-		const char *nombre2 = "Cacnea";
-		const char *nombre3 = "Charmander";
-		const char *nombre4 = "Floatzel";
+		char *nombre1 = "Pikachu";
+		char *nombre2 = "Cacnea";
+		char *nombre3 = "Charmander";
+		char *nombre4 = "Floatzel";
 		JUGADOR jugador2 = JUGADOR2;
 		juego_seleccionar_pokemon(j,jugador,nombre1,nombre2,nombre3);
 		juego_seleccionar_pokemon(j,jugador2,nombre1,nombre2,nombre4);
 		jugada_t jugada_jugador1 = {"Floatzel", "Lanzallamas"};
 		jugada_t jugada_jugador2 = {"Pikachu", "Rayo"};
+		char *eleccionAdversario1, *eleccionAdversario2, *eleccionAdversario3;
+		adversario_pokemon_seleccionado(adversario,nombre1,nombre2,nombre3);
+		adversario_seleccionar_pokemon(adversario, &eleccionAdversario1,
+				       &eleccionAdversario2,
+				       &eleccionAdversario3);
 		juego_jugar_turno(j,jugada_jugador1,jugada_jugador2);
 		
 	}

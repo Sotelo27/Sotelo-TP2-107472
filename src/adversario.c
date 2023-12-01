@@ -9,8 +9,6 @@
 struct adversario{
 	lista_t * lista_pokemon;
 	lista_t * pokemones_jugador;
-	lista_t * pokemones_adversario;
-	int puntos;
 };
 
 adversario_t *adversario_crear(lista_t *pokemon)
@@ -19,7 +17,9 @@ adversario_t *adversario_crear(lista_t *pokemon)
 	if (!adversario) {
 		return NULL;
 	}
-	adversario->lista_pokemon = NULL;
+	adversario->lista_pokemon = lista_crear();
+	adversario->lista_pokemon = pokemon;
+	adversario->pokemones_jugador = NULL;
 	return adversario;
 }
 
@@ -39,6 +39,12 @@ int comparar_nombres(void *pokemon, void *nombre) {
     return -1;
 }
 
+bool mostr_pokemon(void *p,void * contexto){
+	printf("Nombre: %s\n",pokemon_nombre(p));
+	return true;
+}
+
+
 bool adversario_seleccionar_pokemon(adversario_t *adversario, char **nombre1,
 				    char **nombre2, char **nombre3)
 {
@@ -46,31 +52,20 @@ bool adversario_seleccionar_pokemon(adversario_t *adversario, char **nombre1,
 	    nombre3 == NULL) {
 		return false;
 	}
-	pokemon_t* pokemon_1 = lista_buscar_elemento(adversario->lista_pokemon,comparar_nombres,(void *)(*nombre1));
-	pokemon_t* pokemon_2 = lista_buscar_elemento(adversario->lista_pokemon,comparar_nombres,(void *)(*nombre2));
-	pokemon_t* pokemon_3 = lista_elemento_en_posicion(adversario->pokemones_jugador,3);
-	if (pokemon_1 == NULL || pokemon_2 == NULL || pokemon_3 == NULL) {
-		return false; // Si alguno de los Pokémon no existe en la lista
-	}
-	if ((pokemon_1 == pokemon_2) ||
-	    (pokemon_1 == pokemon_3) ||
-	    (pokemon_2 == pokemon_3)) {
-		return false; // Si hay Pokémon repetidos en la selección
-	}
-	lista_t * pokemones ;
-	pokemones = lista_crear();
-	if (!pokemones){
-		return false;
-	}
-	pokemones = lista_insertar(pokemones,pokemon_1);
-	pokemones = lista_insertar(pokemones,pokemon_2);
-	pokemones = lista_insertar(pokemones,pokemon_3);
-	adversario->pokemones_adversario = lista_crear();
-	if (!adversario->pokemones_adversario){
-		return false;
-	}
-	adversario->pokemones_adversario = pokemones;
+	size_t indice = 0;
+	pokemon_t * buscar_pokemon = lista_elemento_en_posicion(adversario->lista_pokemon,indice);
+	pokemon_t* pokemon_1 = lista_elemento_en_posicion(adversario->lista_pokemon,0);
+	pokemon_t* pokemon_2 = lista_elemento_en_posicion(adversario->lista_pokemon,1);
+	*nombre1 = (char*)pokemon_nombre(pokemon_1);
+	*nombre2 = (char*)pokemon_nombre(pokemon_2);
+	char * nombre_aux = (char*)pokemon_nombre(buscar_pokemon);
+	while(lista_buscar_elemento(adversario->pokemones_jugador,comparar_nombres,(void *)nombre_aux)){
+		indice += 1;
+		buscar_pokemon = lista_elemento_en_posicion(adversario->lista_pokemon,indice);
+		nombre_aux = (char*)pokemon_nombre(buscar_pokemon);
 
+	}
+	printf("Es el nombre : %s del pokemon del adversario: ",pokemon_nombre(buscar_pokemon));
 	return true;
 }
 

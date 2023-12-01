@@ -21,7 +21,6 @@ struct juego {
 	bool estado_juego;
 	struct datos_jugador jugador_1;
 	struct datos_jugador jugador_2;
-	adversario_t *adversario;
 	int turnos;
 };
 
@@ -142,7 +141,7 @@ JUEGO_ESTADO juego_seleccionar_pokemon(juego_t *juego, JUGADOR jugador,
 	if(jugador == JUGADOR1){
 		juego->jugador_1.pokemones = lista_crear();
 		juego->jugador_1.pokemones = pokemones;
-	}else if (jugador == JUGADOR2){
+	}else if(jugador == JUGADOR2){
 		juego->jugador_2.pokemones = lista_crear();
 		juego->jugador_2.pokemones = pokemones;
 	}
