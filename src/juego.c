@@ -12,6 +12,7 @@
 struct datos_jugador{
 	int puntos;
 	lista_t *pokemones;
+	lista_t * ataques_utilizados; // acordarse para hacer un registro de ataque, se agregaran aca los ataques utilizados, podemos hacer un hash para identificar mejor a los pokemones.
 };
 
 struct juego {
@@ -31,7 +32,7 @@ juego_t *juego_crear()
 		return NULL;
 	}
 	juego->lista_pokemon = NULL;
-	juego->estado_juego = false;
+	juego->estado_juego = true;
 	return juego;
 }
 
@@ -167,6 +168,29 @@ int comprobar_eficacia_ataque(pokemon_t *pokemon, const struct ataque *ataque_1)
     return ataque_eficacia;
 }
 
+RESULTADO_ATAQUE asignar_resultado(int eficacia_ataque){
+	RESULTADO_ATAQUE resultado_ataque = ATAQUE_INEFECTIVO;
+	if(eficacia_ataque == 1){
+		resultado_ataque = ATAQUE_EFECTIVO;
+	}else if(eficacia_ataque == 2){
+		resultado_ataque = ATAQUE_REGULAR;
+	}
+	return resultado_ataque;
+}
+
+
+int calcular_puntos(RESULTADO_ATAQUE resultado_ataque,const struct ataque * ataque_jugador){
+	int puntos = 1;
+	if (resultado_ataque == ATAQUE_EFECTIVO){
+		puntos = (int)ataque_jugador->poder * 3;
+	}else if(resultado_ataque == ATAQUE_INEFECTIVO){
+		puntos = (int)ataque_jugador->poder / 2 ;
+	}else if(resultado_ataque == ATAQUE_REGULAR){
+		puntos = (int)ataque_jugador->poder ;
+	}
+	return puntos;
+}
+
 resultado_jugada_t juego_jugar_turno(juego_t *juego, jugada_t jugada_jugador1,
 				     jugada_t jugada_jugador2)
 {
@@ -196,9 +220,12 @@ resultado_jugada_t juego_jugar_turno(juego_t *juego, jugada_t jugada_jugador1,
 		return resultado;
 	}
 	int eficacia_ataque = comprobar_eficacia_ataque(pokemon_jugador_2,ataque_jugador_1);
-	
+	resultado.jugador1 = asignar_resultado(eficacia_ataque);
+	juego->jugador_1.puntos = calcular_puntos(resultado.jugador1,ataque_jugador_1);
 	eficacia_ataque = comprobar_eficacia_ataque(pokemon_jugador_1,ataque_jugador_2);
-	
+	resultado.jugador2 = asignar_resultado(eficacia_ataque);
+	juego->jugador_2.puntos = calcular_puntos(resultado.jugador2,ataque_jugador_2);
+	juego->turnos +=1;
 	return resultado;
 }
 
@@ -214,9 +241,14 @@ int juego_obtener_puntaje(juego_t *juego, JUGADOR jugador)
 
 bool juego_finalizado(juego_t *juego)
 {
+	if(juego->turnos == 9){
+		juego->estado_juego = false;
+	}
 	return juego->estado_juego;
 }
 
 void juego_destruir(juego_t *juego)
-{
+{	
+	lista_destruir(juego->lista_pokemon);
+	free(juego);
 }

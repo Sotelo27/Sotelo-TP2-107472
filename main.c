@@ -51,6 +51,7 @@ bool menu_ejecutar_comando(menu_t* m , char* comando , juego_t * contexto){
 }
 
 void menu_destruir(menu_t* m){
+	hash_destruir(m->comandos);
 	free(m);
 }
 
@@ -79,6 +80,7 @@ int main(int argc, char *argv[])
 	char linea[200];
 	fgets(linea,200,stdin);
 	linea[1] = 0;
+	/*
 	JUGADOR jugador = JUGADOR1;
 	const char *nombre1 = "Pikachu";
 	const char *nombre2 = "Cacnea";
@@ -87,8 +89,9 @@ int main(int argc, char *argv[])
 	juego_seleccionar_pokemon(j,jugador,nombre1,nombre2,nombre3);
 	juego_seleccionar_pokemon(j,jugador2,nombre1,nombre2,nombre3);
 	jugada_t jugada_jugador1 = {"Charmander", "Lanzallamas"};
-	jugada_t jugada_jugador2 = {"Cacnea", "Absorber"};
+	jugada_t jugada_jugador2 = {"Pikachu", "Rayo"};
 	juego_jugar_turno(j,jugada_jugador1,jugada_jugador2);
+	*/ 
 	menu_ejecutar_comando(menu,linea,j);
 	menu_destruir(menu);
 }
