@@ -26,7 +26,7 @@ typedef struct
 
 struct informacion_comando{
 	char* descripcion;
-	void (*funcion)(juego_t *);
+	bool (*funcion)(juego_t *);
 };
 
 menu_t* menu_crear(){
@@ -34,7 +34,7 @@ menu_t* menu_crear(){
 	m->comandos = hash_crear(3);
 	return m;
 }
-void menu_agregar_comando(menu_t* m , char* comando, char* descripcion , void (*f)(juego_t*)){
+void menu_agregar_comando(menu_t* m , char* comando, char* descripcion , bool (*f)(juego_t*)){
 	struct informacion_comando *i = malloc(sizeof(struct informacion_comando));
 	i->descripcion = descripcion;
 	i->funcion = f;
@@ -43,11 +43,10 @@ void menu_agregar_comando(menu_t* m , char* comando, char* descripcion , void (*
 
 bool menu_ejecutar_comando(menu_t* m , char* comando , juego_t * contexto){
 	struct informacion_comando *i = hash_obtener(m->comandos,comando);
-	if (i){
-		i->funcion(contexto);
-		return true;
+	if (!i){
+		return false;
 	}
-	return false;
+	return i->funcion(contexto);
 }
 
 void menu_destruir(menu_t* m){
@@ -60,12 +59,29 @@ bool mostrar_pokemon(void *p,void * contexto){
 	return true;
 }
 
-void cargar_archivo(juego_t *j){
-
+bool cargar_archivo(juego_t *j){
+	return false;
 }
 
-void listar_pokemones(juego_t *j){
+bool listar_pokemones(juego_t *j){
 	lista_con_cada_elemento(juego_listar_pokemon(j),mostrar_pokemon,NULL);
+	return true;
+}
+
+void mostrar_comandos(){
+    printf("\n");
+    printf("\t||~~~~~~~~~~~~~~~~~~LISTA DE COMANDOS~~~~~~~~~~~~~~~~||\n");
+    printf("\t|| [i] Iniciar juego                                 ||\n");
+    printf("\t|| [c] Cargar un archivo                             ||\n");
+    printf("\t|| [l] Listar pokemones Disponible                   ||\n");
+    printf("\t|| [s] Seleccionar pokemones                         ||\n");
+    printf("\t|| [j] Jugar                                         ||\n");
+    printf("\t|| [m] Mostrar ataques de pokemon                    ||\n");
+    printf("\t|| [t] Mostrar tipo de pokemon                       ||\n");
+    printf("\t|| [d] Seleccionar Dificultad                        ||\n");
+    printf("\t|| [q] Finalizar juego                               ||\n");
+    printf("\t||~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~||\n");
+    printf("\n");
 }
 
 int main(int argc, char *argv[])
@@ -75,23 +91,28 @@ int main(int argc, char *argv[])
 	menu_t *menu = menu_crear();
 	menu_agregar_comando(menu,"c","cargar un archivo",cargar_archivo);
 	menu_agregar_comando(menu,"l","Listar pokemones",listar_pokemones);
-	printf("Ingresa un comando a continuacion\n");
 	printf("TP2 > \n");
-	char linea[200];
-	fgets(linea,200,stdin);
-	linea[1] = 0;
-	/*
-	JUGADOR jugador = JUGADOR1;
-	const char *nombre1 = "Pikachu";
-	const char *nombre2 = "Cacnea";
-	const char *nombre3 = "Charmander";
-	JUGADOR jugador2 = JUGADOR2;
-	juego_seleccionar_pokemon(j,jugador,nombre1,nombre2,nombre3);
-	juego_seleccionar_pokemon(j,jugador2,nombre1,nombre2,nombre3);
-	jugada_t jugada_jugador1 = {"Charmander", "Lanzallamas"};
-	jugada_t jugada_jugador2 = {"Pikachu", "Rayo"};
-	juego_jugar_turno(j,jugada_jugador1,jugada_jugador2);
-	*/ 
-	menu_ejecutar_comando(menu,linea,j);
+	while(!juego_finalizado(j)){
+		printf("Ingresa un comando a continuacion\n");
+		char linea[200];
+		fgets(linea,200,stdin);
+		linea[1] = 0;
+		if(menu_ejecutar_comando(menu,linea,j) == false){
+			printf("\nEse comando no existe\n");
+		}
+		JUGADOR jugador = JUGADOR1;
+		const char *nombre1 = "Pikachu";
+		const char *nombre2 = "Cacnea";
+		const char *nombre3 = "Charmander";
+		const char *nombre4 = "Floatzel";
+		JUGADOR jugador2 = JUGADOR2;
+		juego_seleccionar_pokemon(j,jugador,nombre1,nombre2,nombre3);
+		juego_seleccionar_pokemon(j,jugador2,nombre1,nombre2,nombre4);
+		jugada_t jugada_jugador1 = {"Floatzel", "Lanzallamas"};
+		jugada_t jugada_jugador2 = {"Pikachu", "Rayo"};
+		juego_jugar_turno(j,jugada_jugador1,jugada_jugador2);
+		
+	}
+	
 	menu_destruir(menu);
 }

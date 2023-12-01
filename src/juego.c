@@ -6,6 +6,7 @@
 #include "ataque.h"
 #include "stdlib.h"
 #include "stdio.h"
+#include "adversario.h"
 #include <string.h>
 
 
@@ -20,6 +21,7 @@ struct juego {
 	bool estado_juego;
 	struct datos_jugador jugador_1;
 	struct datos_jugador jugador_2;
+	adversario_t *adversario;
 	int turnos;
 };
 
@@ -32,7 +34,7 @@ juego_t *juego_crear()
 		return NULL;
 	}
 	juego->lista_pokemon = NULL;
-	juego->estado_juego = true;
+	juego->estado_juego = false;
 	return juego;
 }
 
@@ -100,6 +102,14 @@ int comparador(void *pokemon, void *nombre) {
 bool mostra_pokemon(void *p,void * contexto){
 	printf("Nombre: %s\n",pokemon_nombre(p));
 	return true;
+}
+
+void juego_reasignar_pokemon(juego_t *juego){
+	pokemon_t * aux_pokemon = lista_elemento_en_posicion(juego->jugador_1.pokemones,2);
+	lista_quitar_de_posicion(juego->jugador_1.pokemones,2);
+	lista_insertar_en_posicion(juego->jugador_1.pokemones,lista_elemento_en_posicion(juego->jugador_2.pokemones,2),2);
+	lista_quitar_de_posicion(juego->jugador_2.pokemones,2);
+	lista_insertar_en_posicion(juego->jugador_2.pokemones,aux_pokemon,2);
 }
 
 JUEGO_ESTADO juego_seleccionar_pokemon(juego_t *juego, JUGADOR jugador,
@@ -194,6 +204,12 @@ int calcular_puntos(RESULTADO_ATAQUE resultado_ataque,const struct ataque * ataq
 resultado_jugada_t juego_jugar_turno(juego_t *juego, jugada_t jugada_jugador1,
 				     jugada_t jugada_jugador2)
 {
+	if (juego->turnos == 0){
+		juego_reasignar_pokemon(juego);
+	}
+	printf("\nEstos son los pokemon del usuario 1\n");
+	lista_con_cada_elemento(juego->jugador_1.pokemones,mostra_pokemon,NULL);
+	printf("\nesos eran\n");
 	resultado_jugada_t resultado;
 	resultado.jugador1 = ATAQUE_ERROR;
 	resultado.jugador2 = ATAQUE_ERROR;
