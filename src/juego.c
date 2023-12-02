@@ -7,13 +7,14 @@
 #include "stdlib.h"
 #include "stdio.h"
 #include "adversario.h"
+#include "hash.h"
 #include <string.h>
 
 
 struct datos_jugador{
 	int puntos;
 	lista_t *pokemones;
-	lista_t * ataques_utilizados; // acordarse para hacer un registro de ataque, se agregaran aca los ataques utilizados, podemos hacer un hash para identificar mejor a los pokemones.
+	lista_t * ataques_jugador;
 };
 
 struct juego {
@@ -23,8 +24,6 @@ struct juego {
 	struct datos_jugador jugador_2;
 	int turnos;
 };
-
-
 
 juego_t *juego_crear()
 {
@@ -103,12 +102,19 @@ bool mostra_pokemon(void *p,void * contexto){
 	return true;
 }
 
+void guardar_ataques(informacion_pokemon_t* pokemons,juego_t *juego){
+	con_cada_pokemon(juego->jugador_1.pokemones,mostra_pokemon,NULL);
+}
+
 void juego_reasignar_pokemon(juego_t *juego){
 	pokemon_t * aux_pokemon = lista_elemento_en_posicion(juego->jugador_1.pokemones,2);
 	lista_quitar_de_posicion(juego->jugador_1.pokemones,2);
 	lista_insertar_en_posicion(juego->jugador_1.pokemones,lista_elemento_en_posicion(juego->jugador_2.pokemones,2),2);
 	lista_quitar_de_posicion(juego->jugador_2.pokemones,2);
 	lista_insertar_en_posicion(juego->jugador_2.pokemones,aux_pokemon,2);
+	for (int i = 0; i++ ; i < 3){
+		con_cada_ataque(juego->jugador_1.pokemones,mostra_pokemon,NULL);
+	}
 }
 
 JUEGO_ESTADO juego_seleccionar_pokemon(juego_t *juego, JUGADOR jugador,
