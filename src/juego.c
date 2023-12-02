@@ -14,6 +14,7 @@
 struct datos_jugador{
 	int puntos;
 	lista_t *pokemones;
+	char ataques_utilizados[9][20];
 };
 
 struct juego {
@@ -208,6 +209,15 @@ resultado_jugada_t juego_jugar_turno(juego_t *juego, jugada_t jugada_jugador1,
 		return resultado;
 	}
 	char * ataque_nombre_1 = jugada_jugador1.ataque;
+	for (int i = 0 ; i < 9 ; i++){
+		if(strcmp(ataque_nombre_1, juego->jugador_1.ataques_utilizados[i]) == 0){
+			//printf("\nHOla\n");
+			resultado.jugador1 = ATAQUE_ERROR;
+			return resultado;
+		}else{
+			strcpy(juego->jugador_1.ataques_utilizados[i], ataque_nombre_1);
+		}
+	}
 	char * ataque_nombre_2 = jugada_jugador2.ataque;
 	const struct ataque * ataque_jugador_1 = pokemon_buscar_ataque(pokemon_jugador_1,ataque_nombre_1);
 	if (!ataque_jugador_1){
@@ -216,14 +226,13 @@ resultado_jugada_t juego_jugar_turno(juego_t *juego, jugada_t jugada_jugador1,
 	}
 	const struct ataque * ataque_jugador_2 = pokemon_buscar_ataque(pokemon_jugador_2,ataque_nombre_2);
 	if (!ataque_jugador_2){
-		resultado.jugador2 = ATAQUE_ERROR;
+		resultado.jugador1 = ATAQUE_ERROR;
 		return resultado;
 	}
 	resultado.jugador1 = comprobar_eficacia_ataque(pokemon_jugador_2,ataque_jugador_1);
 	juego->jugador_1.puntos += calcular_puntos(resultado.jugador1,ataque_jugador_1);
 	resultado.jugador2 = comprobar_eficacia_ataque(pokemon_jugador_1,ataque_jugador_2);
 	juego->jugador_2.puntos += calcular_puntos(resultado.jugador2,ataque_jugador_2);
-	printf("\nLos untos del jugador 2 son %d \n",juego->jugador_2.puntos);
 	juego->turnos +=1;
 	return resultado;
 }
