@@ -103,8 +103,7 @@ int main(int argc, char *argv[])
 	menu_agregar_comando(menu,"c","cargar un archivo",cargar_archivo);
 	menu_agregar_comando(menu,"l","Listar pokemones",listar_pokemones);
 	printf("TP2 > \n");
-	/*
-	while(juego_finalizado(j)){
+	while(!juego_finalizado(j)){
 		printf("Ingresa un comando a continuacion\n");
 		char linea[200];
 		fgets(linea,200,stdin);
@@ -113,25 +112,35 @@ int main(int argc, char *argv[])
 			printf("\nEse comando no existe\n");
 		}
 		JUGADOR jugador = JUGADOR1;
+		resultado_jugada_t resultado;
+		resultado.jugador1 = ATAQUE_ERROR;
+		resultado.jugador2 = ATAQUE_ERROR;
 		char *nombre1 = "Pikachu";
-		char *nombre2 = "Cacnea";
-		char *nombre3 = "Charmander";
+		char *nombre2 = "Charmander";
+		char *nombre3 = "Floatzel";
 		JUGADOR jugador2 = JUGADOR2;
 		juego_seleccionar_pokemon(j,jugador,nombre1,nombre2,nombre3);
-		jugada_t jugada_jugador1 = {"Pikachu", "Rayo"};
-		jugada_t jugada_jugador2 = {"Charmander", "Ascuas"};
+		jugada_t jugada_jugador2 = {"Cacnea", "Absorber"};
+		jugada_t jugada_jugador1 = {"Charmander", "Ascuas"};
 		char *eleccionAdversario1, *eleccionAdversario2, *eleccionAdversario3;
 		adversario_pokemon_seleccionado(adversario,nombre1,nombre2,nombre3);
 		adversario_seleccionar_pokemon(adversario, &eleccionAdversario1,
 				       &eleccionAdversario2,
 				       &eleccionAdversario3);
 		juego_seleccionar_pokemon(j,jugador2,eleccionAdversario1,eleccionAdversario2,eleccionAdversario3);
-		juego_jugar_turno(j,jugada_jugador1,jugada_jugador2);
-		jugada_t jugada_jugador3 = {"Pikachu", "Chispas"};
-		jugada_t jugada_jugador4 = {"Charmander", "Furia"};
-		juego_jugar_turno(j,jugada_jugador3,jugada_jugador4);
+		resultado = juego_jugar_turno(j,jugada_jugador1,jugada_jugador2);
+		if(resultado.jugador1 == ATAQUE_EFECTIVO){
+			printf("\nNo se cual es el error\n");
+			}
+		jugada_t jugada_jugador3 = {"Pikachu", "Rayo"};
+		jugada_t jugada_jugador4 = {"Floatzel", "Cascada"};
+		resultado = juego_jugar_turno(j,jugada_jugador3,jugada_jugador4);
+		if(resultado.jugador1 == ATAQUE_EFECTIVO){
+			printf("\nNo se cual es el error\n");
+			}
 	}
-	*/
+	
+	/*
 	printf("Ingresa un comando a continuacion\n");
 	char linea[200];
 	fgets(linea,200,stdin);
@@ -163,5 +172,6 @@ int main(int argc, char *argv[])
 		adversario_proxima_jugada(adversario);
 		contador ++;
 	}
+	*/
 	menu_destruir(menu);
 }
