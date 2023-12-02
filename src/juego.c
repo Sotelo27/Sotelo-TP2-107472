@@ -211,7 +211,6 @@ resultado_jugada_t juego_jugar_turno(juego_t *juego, jugada_t jugada_jugador1,
 	char * ataque_nombre_1 = jugada_jugador1.ataque;
 	for (int i = 0 ; i < 9 ; i++){
 		if(strcmp(ataque_nombre_1, juego->jugador_1.ataques_utilizados[i]) == 0){
-			//printf("\nHOla\n");
 			resultado.jugador1 = ATAQUE_ERROR;
 			return resultado;
 		}else{
