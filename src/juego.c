@@ -14,7 +14,6 @@
 struct datos_jugador{
 	int puntos;
 	lista_t *pokemones;
-	lista_t * ataques_jugador;
 };
 
 struct juego {
@@ -32,7 +31,8 @@ juego_t *juego_crear()
 		return NULL;
 	}
 	juego->lista_pokemon = NULL;
-	juego->estado_juego = false;
+	juego->estado_juego = true;
+	juego->turnos = 0;
 	return juego;
 }
 
@@ -102,19 +102,12 @@ bool mostra_pokemon(void *p,void * contexto){
 	return true;
 }
 
-void guardar_ataques(informacion_pokemon_t* pokemons,juego_t *juego){
-	con_cada_pokemon(juego->jugador_1.pokemones,mostra_pokemon,NULL);
-}
-
 void juego_reasignar_pokemon(juego_t *juego){
 	pokemon_t * aux_pokemon = lista_elemento_en_posicion(juego->jugador_1.pokemones,2);
 	lista_quitar_de_posicion(juego->jugador_1.pokemones,2);
 	lista_insertar_en_posicion(juego->jugador_1.pokemones,lista_elemento_en_posicion(juego->jugador_2.pokemones,2),2);
 	lista_quitar_de_posicion(juego->jugador_2.pokemones,2);
 	lista_insertar_en_posicion(juego->jugador_2.pokemones,aux_pokemon,2);
-	for (int i = 0; i++ ; i < 3){
-		con_cada_ataque(juego->jugador_1.pokemones,mostra_pokemon,NULL);
-	}
 }
 
 JUEGO_ESTADO juego_seleccionar_pokemon(juego_t *juego, JUGADOR jugador,
@@ -206,15 +199,13 @@ int calcular_puntos(RESULTADO_ATAQUE resultado_ataque,const struct ataque * ataq
 	return puntos;
 }
 
+
 resultado_jugada_t juego_jugar_turno(juego_t *juego, jugada_t jugada_jugador1,
 				     jugada_t jugada_jugador2)
 {
 	if (juego->turnos == 0){
 		juego_reasignar_pokemon(juego);
 	}
-	printf("\nEstos son los pokemon del usuario 1\n");
-	lista_con_cada_elemento(juego->jugador_1.pokemones,mostra_pokemon,NULL);
-	printf("\nesos eran\n");
 	resultado_jugada_t resultado;
 	resultado.jugador1 = ATAQUE_ERROR;
 	resultado.jugador2 = ATAQUE_ERROR;
@@ -228,8 +219,8 @@ resultado_jugada_t juego_jugar_turno(juego_t *juego, jugada_t jugada_jugador1,
 		resultado.jugador2 = ATAQUE_ERROR;
 		return resultado;
 	}
-	const char * ataque_nombre_1 = jugada_jugador1.ataque;
-	const char * ataque_nombre_2 = jugada_jugador2.ataque;
+	char * ataque_nombre_1 = jugada_jugador1.ataque;
+	char * ataque_nombre_2 = jugada_jugador2.ataque;
 	const struct ataque * ataque_jugador_1 = pokemon_buscar_ataque(pokemon_jugador_1,ataque_nombre_1);
 	if (!ataque_jugador_1){
 		resultado.jugador1 = ATAQUE_ERROR;
