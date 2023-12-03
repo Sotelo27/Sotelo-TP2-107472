@@ -13,6 +13,7 @@ struct estado_juego{
 	juego_t * juego;
 	menu_t* menu;
 	bool continuar;
+	bool juego_iniciado;
 };
 
 bool verificar_ataque(char *ataques_jugador[], char *ataque_nombre,int limite) {
@@ -69,36 +70,32 @@ bool listar_pokemones(void *e){
 	}
 	if(lista_tamanio(juego_listar_pokemon(estado->juego)) == 0){
 		printf("\nAun no se a cargado ningun archivo, no hay pokemones por mostrar.\n");
+		return true;
 	}
 	lista_con_cada_elemento(juego_listar_pokemon(estado->juego),mostrar_pokemon,NULL);
 	return true;
 }
 
-bool seleccionar_pokemones(void * e){
-	if (!e){
-		return false;
-	}
-	struct estado_juego *estado = e;
-	JUEGO_ESTADO estado_seleccion;
-	if(!estado){
-		return false;
-	}
-	char eleccionJugador1[200];
-	char eleccionJugador2[200];
-	char eleccionJugador3[200];
+bool seleccionar_pokemones_jugador(char **eleccion_jugador_1,char **eleccion_jugador_2,char **eleccion_jugador_3){;
+	char nombre_1[20];
+	char nombre_2[20];
+	char nombre_3[20];
 
 	printf("Jugador 1, ingresa tu elección:\n");
-	fgets(eleccionJugador1, sizeof(eleccionJugador1), stdin);
-	eleccionJugador1[strlen(eleccionJugador1) - 1] = '\0'; 
+	fgets(nombre_1, sizeof(nombre_1), stdin);
+	nombre_1[strlen(nombre_1) - 1] = '\0'; 
 
 	printf("Jugador 2, ingresa tu elección:\n");
-	fgets(eleccionJugador2, sizeof(eleccionJugador2), stdin);
-	eleccionJugador2[strlen(eleccionJugador2) - 1] = '\0'; 
+	fgets(nombre_2, sizeof(nombre_2), stdin);
+	nombre_2[strlen(nombre_2) - 1] = '\0'; 
 
 	printf("Jugador 3, ingresa tu elección:\n");
-	fgets(eleccionJugador3, sizeof(eleccionJugador3), stdin);
-	eleccionJugador3[strlen(eleccionJugador3) - 1] = '\0';
-
+	fgets(nombre_3, sizeof(nombre_3), stdin);
+	nombre_3[strlen(nombre_3) - 1] = '\0';
+	strcpy(*eleccion_jugador_1, nombre_1);
+	strcpy(*eleccion_jugador_2, nombre_2);
+	strcpy(*eleccion_jugador_3, nombre_3);
+	/*
 	estado_seleccion = juego_seleccionar_pokemon(estado->juego, JUGADOR1, eleccionJugador1,
 				  eleccionJugador2, eleccionJugador3);
 	if(estado_seleccion == POKEMON_INEXISTENTE){
@@ -113,11 +110,27 @@ bool seleccionar_pokemones(void * e){
 	{
 		printf("\nSe a cargado correctamente los pokemon\n");
 	}
-	adversario_pokemon_seleccionado(estado->juego,eleccionJugador1,eleccionJugador2,eleccionJugador3);
+	adversario_t *adversario = adversario_crear(juego_listar_pokemon(estado->juego));
+	adversario_pokemon_seleccionado(adversario,eleccionJugador1,eleccionJugador2,eleccionJugador3);
 	char *eleccionAdversario1, *eleccionAdversario2, *eleccionAdversario3;
-	adversario_seleccionar_pokemon(estado->juego,&eleccionAdversario1,&eleccionAdversario2,&eleccionAdversario3);
+	adversario_seleccionar_pokemon(adversario,&eleccionAdversario1,&eleccionAdversario2,&eleccionAdversario3);
 	juego_seleccionar_pokemon(estado->juego,JUGADOR2,eleccionAdversario1,eleccionAdversario2,eleccionAdversario3);
+	*/
 	return true;
+}
+
+void ingresar_nombres(char nombre_1[], char nombre_2[], char nombre_3[]) {
+    printf("Jugador ingresa el primer pokemon:\n");
+    fgets(nombre_1, 20, stdin);
+    nombre_1[strlen(nombre_1) - 1] = '\0';
+
+    printf("Jugador ingresa el segundo pokemon:\n");
+    fgets(nombre_2, 20, stdin);
+    nombre_2[strlen(nombre_2) - 1] = '\0';
+
+    printf("Jugador ingresa el tercer pokemon:\n");
+    fgets(nombre_3, 20, stdin);
+    nombre_3[strlen(nombre_3) - 1] = '\0';
 }
 
 bool mostrar_tipo_pokemon(){
@@ -128,10 +141,46 @@ bool mostrar_ataques_pokemon(){
 	return true;
 }
 
+void mostrar_error_seleccion(JUEGO_ESTADO estado_seleccion){
+	if(estado_seleccion == POKEMON_INEXISTENTE){
+		printf("\nHas ingresado un pokemon que no se encuentra en la lista cargada, reintenta nuevamente.\n");
+	}else if (estado_seleccion == POKEMON_REPETIDO)
+	{
+		printf("\nUno de los pokemon que has ingresado se encuentra repetido\n");
+	}else if (estado_seleccion == ERROR_GENERAL)
+	{
+		printf("\nHa habido un error al ingresarse,reintenta nuevamente\n");
+	}else if (estado_seleccion == TODO_OK)
+	{
+		printf("\nSe a cargado correctamente los pokemon\n");
+	}
+}
+
 bool jugar(void * e){
-	//adversario_t *adversario =adversario_crear(juego_listar_pokemon(j));
+	if (!e){
+		return false;
+	}
 	struct estado_juego *estado = e;
+	if(!estado){
+		return false;
+	}
+	if(lista_tamanio(juego_listar_pokemon(estado->juego)) == 0){
+		printf("\nAun no se a cargado ningun archivo, no se puede jugar.\n");
+		return true;
+	}
+	printf("\n---------!Juego iniciado--------\n");
+	printf("\n----------Selecciona los pokemon para continuar, a continuacion ingresa el comando------------\n");
+	char nombre_1[20],nombre_2[20],nombre_3[20];
+	JUEGO_ESTADO estado_seleccion = ERROR_GENERAL;
+	while (estado_seleccion != TODO_OK){
+		ingresar_nombres(nombre_1, nombre_2, nombre_3);
+		estado_seleccion = juego_seleccionar_pokemon(estado->juego, JUGADOR1, nombre_1,nombre_2,nombre_3);
+		mostrar_error_seleccion(estado_seleccion);
+		
+	}
+	printf("\nPerfecto que comienze el juego!\n");
 	while(!juego_finalizado(estado->juego)){
+
 	}
 	return true;
 }
@@ -150,7 +199,6 @@ bool mostrar_comandos(){
     printf("\t|| [v] Ver comandos                                  ||\n");
     printf("\t|| [c] Cargar un archivo                             ||\n");
     printf("\t|| [l] Listar pokemones Disponible                   ||\n");
-    printf("\t|| [s] Seleccionar pokemones                         ||\n");
     printf("\t|| [a] Seleccionar jugada                            ||\n");
     printf("\t|| [j] Jugar                                         ||\n");
     printf("\t|| [m] Mostrar ataques de pokemon                    ||\n");
@@ -182,12 +230,11 @@ void motrar_reglas(){
 int main(int argc, char *argv[])
 {
 	juego_t *j = juego_crear();
-	struct estado_juego estado = {.juego = j , .continuar = true};
+	struct estado_juego estado = {.juego = j , .continuar = true , .juego_iniciado = false};
 	menu_t *menu = menu_crear();
 	menu_agregar_comando(menu,"v","Ver comandos",mostrar_comandos);
 	menu_agregar_comando(menu,"l","Listar pokemones",listar_pokemones);
 	menu_agregar_comando(menu,"c","Cargar un archivo",cargar_archivo);
-	menu_agregar_comando(menu,"s","Seleccionar pokemones",seleccionar_pokemones);
 	menu_agregar_comando(menu,"t","Mostrar tipo de pokemon",mostrar_tipo_pokemon);
 	menu_agregar_comando(menu,"m","Mostrar ataque pokemon",mostrar_ataques_pokemon);
 	menu_agregar_comando(menu,"j","Iniciar la partida",jugar);
