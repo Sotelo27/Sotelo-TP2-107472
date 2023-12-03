@@ -16,6 +16,7 @@ struct estado_juego {
 	lista_t *pokemon_adversario;
 	bool continuar;
 	bool juego_iniciado;
+	bool archivo_cargado;
 };
 
 bool mostrar_pokemon(void *p, void *contexto)
@@ -33,6 +34,12 @@ bool cargar_archivo(void *e)
 	if (!estado) {
 		return false;
 	}
+	if(estado->archivo_cargado == true){
+		printf("\nYa se a cargado el archivo\n");
+		return true;
+	}
+	juego_t *j = juego_crear();
+	estado->juego = j;
 	JUEGO_ESTADO archivo_estado;
 	printf("Ingresa el nombre del archivo a continuacion:\n");
 	char linea[200];
@@ -45,12 +52,17 @@ bool cargar_archivo(void *e)
 	}
 	archivo_estado = juego_cargar_pokemon(estado->juego, linea);
 	if (archivo_estado == TODO_OK) {
+		estado->archivo_cargado = true;
 		printf("\nEl archivo se cargo correctamente\n");
 		return true;
 	} else if (archivo_estado == POKEMON_INSUFICIENTES) {
+		estado->archivo_cargado = false;
 		printf("\nEl archivo tiene pokemones insuficientes para el juego \n");
+		return false;
 	} else if (archivo_estado == ERROR_GENERAL) {
+		estado->archivo_cargado = false;
 		printf("\nEL archivo no se cargo correctamente \n");
+		return false;
 	}
 	return true;
 }
@@ -64,8 +76,8 @@ bool listar_pokemones(void *e)
 	if (!estado) {
 		return false;
 	}
-	if (lista_tamanio(juego_listar_pokemon(estado->juego)) == 0) {
-		printf("\nAun no se a cargado ningun archivo, no hay pokemones por mostrar.\n");
+	if(estado->archivo_cargado == false){
+		printf("\nNo se a cargado ningun archivo, cargue un archivo para listar pokemones\n");
 		return true;
 	}
 	lista_con_cada_elemento(juego_listar_pokemon(estado->juego),
@@ -168,7 +180,7 @@ int comparar_nombre_pokemon(void *pokemon, void *nombre)
 }
 
 lista_t *guardar_pokemones_jugador(void *e, lista_t *lista, char nombre_1[],
-				char nombre_2[], const char *nombre_3)
+				   char nombre_2[], const char *nombre_3)
 {
 	if (!e) {
 		return NULL;
@@ -186,10 +198,10 @@ lista_t *guardar_pokemones_jugador(void *e, lista_t *lista, char nombre_1[],
 	pokemon_t *pokemon_3 = lista_buscar_elemento(
 		juego_listar_pokemon(estado->juego), comparar_nombre_pokemon,
 		(void *)nombre_3);
-	lista_t * lista_con_pokemones = lista_crear();
-	lista_insertar(lista_con_pokemones,pokemon_1);
-	lista_insertar(lista_con_pokemones,pokemon_2);
-	lista_insertar(lista_con_pokemones,pokemon_3);
+	lista_t *lista_con_pokemones = lista_crear();
+	lista_insertar(lista_con_pokemones, pokemon_1);
+	lista_insertar(lista_con_pokemones, pokemon_2);
+	lista_insertar(lista_con_pokemones, pokemon_3);
 	return lista_con_pokemones;
 }
 
@@ -229,9 +241,27 @@ void mostrar_datos_ataque(const struct ataque *a, void *aux)
 
 bool mostrar_datos_equipo(void *p, void *contexto)
 {
-	printf("\nEl pokemon numero 1 es %s de tipo %s y sus ataques son : \n",pokemon_nombre(p),conseguir_tipo(pokemon_tipo(p)));
-	con_cada_ataque(p,mostrar_datos_ataque,NULL);
+	printf("\nEl pokemon numero 1 es %s de tipo %s y sus ataques son : \n",
+	       pokemon_nombre(p), conseguir_tipo(pokemon_tipo(p)));
+	con_cada_ataque(p, mostrar_datos_ataque, NULL);
 	return true;
+}
+
+void mostrar_equipos_pokemon(void *e)
+{
+	if (!e) {
+		return;
+	}
+	struct estado_juego *estado = e;
+	if (!estado) {
+		return;
+	}
+	printf("\n Asi se a quedado conformado tu equipo pokemon : \n");
+	lista_con_cada_elemento(estado->pokemon_jugador, mostrar_datos_equipo,
+				NULL);
+	printf("\n Asi se a quedado conformado el equipo pokemon  adversario: \n");
+	lista_con_cada_elemento(estado->pokemon_adversario,
+				mostrar_datos_equipo, NULL);
 }
 
 bool jugar(void *e)
@@ -243,8 +273,8 @@ bool jugar(void *e)
 	if (!estado) {
 		return false;
 	}
-	if (lista_tamanio(juego_listar_pokemon(estado->juego)) == 0) {
-		printf("\nAun no se a cargado ningun archivo, no se puede jugar.\n");
+	if(estado->archivo_cargado == false){
+		printf("\nNo se a cargado ningun archivo, cargue un archivo para jugar\n");
 		return true;
 	}
 	printf("\n---------!Juego iniciado--------\n");
@@ -269,14 +299,13 @@ bool jugar(void *e)
 				  eleccionAdversario2, eleccionAdversario3);
 	int turno = 0;
 	resultado_jugada_t resultado = { .jugador1 = ATAQUE_ERROR };
-	estado->pokemon_jugador = guardar_pokemones_jugador(estado,estado->pokemon_jugador, nombre_1, nombre_2,
-				  eleccionAdversario3);
-	estado->pokemon_adversario = guardar_pokemones_jugador(estado,estado->pokemon_adversario, eleccionAdversario1,
-				  eleccionAdversario2, nombre_3);
-	printf("\n Asi se a quedado conformado tu equipo pokemon : \n");
-	lista_con_cada_elemento(estado->pokemon_jugador,mostrar_datos_equipo,NULL);
-	printf("\n Asi se a quedado conformado el equipo pokemon  adversario: \n");
-	lista_con_cada_elemento(estado->pokemon_adversario,mostrar_datos_equipo,NULL);
+	estado->pokemon_jugador = guardar_pokemones_jugador(
+		estado, estado->pokemon_jugador, nombre_1, nombre_2,
+		eleccionAdversario3);
+	estado->pokemon_adversario = guardar_pokemones_jugador(
+		estado, estado->pokemon_adversario, eleccionAdversario1,
+		eleccionAdversario2, nombre_3);
+	mostrar_equipos_pokemon(estado);
 	printf("\nPerfecto que comienze el juego!\n");
 	while (!juego_finalizado(estado->juego)) {
 		jugada_t jugada_jugador_1;
@@ -294,17 +323,18 @@ bool jugar(void *e)
 			       jugada_jugador_2.ataque);
 			mostrar_efectividad_ataque(resultado);
 			printf("\nEstos son tus ataques: \n");
-			lista_con_cada_elemento(estado->pokemon_jugador,mostrar_datos_equipo,NULL);
+			lista_con_cada_elemento(estado->pokemon_jugador,
+						mostrar_datos_equipo, NULL);
 		}
 		juego_finalizado(estado->juego);
 	}
-	int puntos_jugador = juego_obtener_puntaje(estado->juego, JUGADOR1);
-	int puntos_adversario = juego_obtener_puntaje(estado->juego, JUGADOR2);
-	mostrar_ganador(puntos_jugador, puntos_adversario);
+	mostrar_ganador(juego_obtener_puntaje(estado->juego, JUGADOR1),
+			juego_obtener_puntaje(estado->juego, JUGADOR2));
 	adversario_destruir(adversario);
 	lista_destruir(estado->pokemon_jugador);
 	lista_destruir(estado->pokemon_adversario);
 	juego_destruir(estado->juego);
+	estado->archivo_cargado = false;
 	return true;
 }
 
@@ -330,8 +360,19 @@ bool mostrar_comandos()
 	return true;
 }
 
-bool mostrar_tabla_tipos()
+bool mostrar_tabla_tipos(void *e)
 {
+	if (!e) {
+		return false;
+	}
+	struct estado_juego *estado = e;
+	if (!estado) {
+		return false;
+	}
+	if(estado->archivo_cargado == false){
+		printf("\nNo se a cargado ningun archivo, cargue un archivo para jugar\n");
+		return true;
+	}
 	printf("╔══════════════════════╗\n");
 	printf("║ Tipos de Pokémon:    ║\n");
 	printf("╠══════════════════════╣\n");
@@ -365,10 +406,9 @@ void motrar_reglas()
 
 int main(int argc, char *argv[])
 {
-	juego_t *j = juego_crear();
-	struct estado_juego estado = { .juego = j,
+	struct estado_juego estado = { 
 				       .continuar = true,
-				       .juego_iniciado = false };
+				       .juego_iniciado = false ,.archivo_cargado = false};
 	menu_t *menu = menu_crear();
 	menu_agregar_comando(menu, "v", "Ver comandos", mostrar_comandos);
 	menu_agregar_comando(menu, "l", "Listar pokemones", listar_pokemones);
@@ -377,7 +417,7 @@ int main(int argc, char *argv[])
 	menu_agregar_comando(menu, "j", "Iniciar la partida", jugar);
 	menu_agregar_comando(menu, "q", "Finalizar juego", finalizar_juego);
 	mostrar_comandos();
-	
+
 	while (estado.continuar) {
 		printf("Ingresa un comando a continuacion\n");
 		char linea[200];
