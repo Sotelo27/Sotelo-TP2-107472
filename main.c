@@ -14,8 +14,7 @@ struct estado_juego{
 	menu_t* menu;
 	bool continuar;
 	bool juego_iniciado;
-	jugada_t jugadas_hechas[9];
-	int turnos;
+	char ataques_utilizados[9][20];
 };
 
 bool verificar_ataque(char *ataques_jugador[], char *ataque_nombre,int limite) {
@@ -115,11 +114,24 @@ void mostrar_error_seleccion(JUEGO_ESTADO estado_seleccion){
 	}
 }
 
-jugada_t seleccionar_jugada (void * e){
+bool validar_repetido(void * e , int turno, char nombre[]){
+	struct estado_juego *estado = e;
+	for (int i = 0 ; i < turno ; i++){
+		if(strcmp(nombre, estado->ataques_utilizados[i]) == 0){
+			printf("\nEsta repetido\n");
+			return false;
+		}
+	}
+	strcpy(estado->ataques_utilizados[turno], nombre);
+	return true;
+}
+
+jugada_t seleccionar_jugada (void * e,int turno){
 	struct estado_juego *estado = e;
 	int validacion = false;
 	jugada_t jugada_jugador = { .pokemon = "nada", .ataque = "nada" };
 	while (validacion == false){
+		printf("\nEl turno de estado es : %d\n",turno);
 		char nombre_1[20],nombre_2[20];
 		printf("Jugador ingresa el nombre del pokemon:\n");
 		fgets(nombre_1, 20, stdin);
@@ -129,10 +141,7 @@ jugada_t seleccionar_jugada (void * e){
 		nombre_2[strlen(nombre_2) - 1] = '\0';
 		strcpy(jugada_jugador.pokemon,nombre_1);
 		strcpy(jugada_jugador.ataque,nombre_2);
-		if(estado->jugadas_hechas[estado->turnos].ataque == jugada_jugador.ataque){
-			printf("\nHas ingresado un ataque que ya se ha hecho, vuelve a ingresarlo\n");
-		}
-		validacion = true;
+		validacion = validar_repetido(estado,turno,nombre_2);
 	}
 	return jugada_jugador;
 }
@@ -165,16 +174,14 @@ bool jugar(void * e){
 	adversario_seleccionar_pokemon(adversario,&eleccionAdversario1,&eleccionAdversario2,&eleccionAdversario3);
 	juego_seleccionar_pokemon(estado->juego,JUGADOR2,eleccionAdversario1,eleccionAdversario2,eleccionAdversario3);
 	printf("\nPerfecto que comienze el juego!\n");
-	estado->turnos = 0;
+	int turno = 0;
 	while(!juego_finalizado(estado->juego)){
 		jugada_t jugada_jugador_1 ;
 		jugada_t jugada_jugador_2;
-		jugada_jugador_1 = seleccionar_jugada(estado->juego);
-		printf("\nEl pokemon es %s y el ataque del jugador 1 es %s \n",jugada_jugador_1.pokemon,jugada_jugador_1.ataque);
+		jugada_jugador_1 = seleccionar_jugada(estado->juego,turno);
 		jugada_jugador_2 = adversario_proxima_jugada(adversario);
-		printf("\nEl pokemon es %s y el ataque del jugador 2 es %s \n",jugada_jugador_2.pokemon,jugada_jugador_2.ataque);
 		juego_jugar_turno(estado->juego,jugada_jugador_1,jugada_jugador_2);
-		estado->turnos++;
+		turno ++;
 	}
 	return true;
 }
@@ -250,38 +257,3 @@ int main(int argc, char *argv[])
 	}
 	menu_destruir(menu);
 }
-
-
-
-
-
-/*
-JUGADOR jugador = JUGADOR1;
-		resultado_jugada_t resultado;
-		resultado.jugador1 = ATAQUE_ERROR;
-		resultado.jugador2 = ATAQUE_ERROR;
-		char *nombre1 = "Pikachu";
-		char *nombre2 = "Charmander";
-		char *nombre3 = "Floatzel";
-		JUGADOR jugador2 = JUGADOR2;
-		juego_seleccionar_pokemon(j,jugador,nombre1,nombre2,nombre3);
-		jugada_t jugada_jugador2 = {"Cacnea", "Absorber"};
-		jugada_t jugada_jugador1 = {"Charmander", "Ascuas"};
-		char *eleccionAdversario1, *eleccionAdversario2, *eleccionAdversario3;
-		adversario_pokemon_seleccionado(adversario,nombre1,nombre2,nombre3);
-		adversario_seleccionar_pokemon(adversario, &eleccionAdversario1,
-				       &eleccionAdversario2,
-				       &eleccionAdversario3);
-		juego_seleccionar_pokemon(j,jugador2,eleccionAdversario1,eleccionAdversario2,eleccionAdversario3);
-		resultado = juego_jugar_turno(j,jugada_jugador1,jugada_jugador2);
-		if(resultado.jugador1 == ATAQUE_EFECTIVO){
-			printf("\nNo se cual es el error\n");
-			}
-		jugada_t jugada_jugador3 = {"Pikachu", "Rayo"};
-		jugada_t jugada_jugador4 = {"Floatzel", "Cascada"};
-		resultado = juego_jugar_turno(j,jugada_jugador3,jugada_jugador4);
-		if(resultado.jugador1 == ATAQUE_EFECTIVO){
-			printf("\nNo se cual es el error\n");
-			}
-		
-*/
