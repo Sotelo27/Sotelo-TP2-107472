@@ -24,7 +24,13 @@ adversario_t *adversario_crear(lista_t *pokemon)
 	}
 	adversario->lista_pokemon = lista_crear();
 	adversario->lista_pokemon = pokemon;
+	adversario->pokemones_adversario = NULL;
+	adversario->ataques_posibles = NULL;
 	adversario->pokemones_jugador = NULL;
+	for (int i = 0; i < 9; i++) {
+		strcpy(adversario->jugadas_posibles->pokemon, "");
+		strcpy(adversario->jugadas_posibles->ataque, "");
+	}
 	return adversario;
 }
 
@@ -130,6 +136,10 @@ void insertar_ataques(const struct ataque *ataque, void *lista_ataques_posibles)
 
 jugada_t adversario_proxima_jugada(adversario_t *adversario)
 {
+	jugada_t jugada_adversario = {.ataque = "" ,.pokemon = ""};
+	if (!adversario){
+		return jugada_adversario;
+	}
 	if (!adversario->ataques_posibles) {
 		adversario->ataques_posibles = lista_crear();
 		for (size_t i = 0; i < 3; i++) {
@@ -162,7 +172,6 @@ jugada_t adversario_proxima_jugada(adversario_t *adversario)
 			}
 		}
 	}
-	jugada_t jugada_adversario;
 	strcpy(jugada_adversario.pokemon,
 	       adversario->jugadas_posibles[adversario->turnos].pokemon);
 	strcpy(jugada_adversario.ataque,

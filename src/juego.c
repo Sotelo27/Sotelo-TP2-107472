@@ -18,6 +18,7 @@ struct datos_jugador {
 
 struct juego {
 	lista_t *lista_pokemon;
+	informacion_pokemon_t * pokemones_archivo;
 	bool estado_juego;
 	struct datos_jugador jugador_1;
 	struct datos_jugador jugador_2;
@@ -33,6 +34,7 @@ juego_t *juego_crear()
 	juego->lista_pokemon = NULL;
 	juego->jugador_1.pokemones = NULL;
 	juego->jugador_2.pokemones = NULL;
+	juego->pokemones_archivo = NULL;
 	juego->estado_juego = false;
 	juego->turnos = 0;
 	juego->jugador_1.puntos = 0;
@@ -48,6 +50,9 @@ juego_t *juego_crear()
 //POST: INSERTA CADA POKEMON EN LA LISTA.
 void insertar_pokemon_lista(pokemon_t *pokemon, void *lista_pokemon)
 {
+	if(!pokemon || !lista_pokemon){
+		return;
+	}
 	lista_pokemon = lista_insertar(lista_pokemon, pokemon);
 }
 
@@ -58,8 +63,8 @@ JUEGO_ESTADO juego_cargar_pokemon(juego_t *juego, char *archivo)
 	}
 
 	// Creo una estructura para almacenar la información de los Pokémon
-	informacion_pokemon_t *pokemon_info = pokemon_cargar_archivo(archivo);
-	if (pokemon_info == NULL) {
+	juego->pokemones_archivo = pokemon_cargar_archivo(archivo);
+	if (juego->pokemones_archivo == NULL) {
 		return ERROR_GENERAL;
 	}
 
@@ -70,10 +75,12 @@ JUEGO_ESTADO juego_cargar_pokemon(juego_t *juego, char *archivo)
 		}
 	}
 	int cantidad_pokemon = con_cada_pokemon(
-		pokemon_info, insertar_pokemon_lista, juego->lista_pokemon);
+		juego->pokemones_archivo, insertar_pokemon_lista, juego->lista_pokemon);
 	if (cantidad_pokemon < 4) {
+		lista_destruir(juego->jugador_1.pokemones);
+		lista_destruir(juego->jugador_2.pokemones);
 		lista_destruir(juego->lista_pokemon);
-		juego->lista_pokemon = NULL;
+		pokemon_destruir_todo(juego->pokemones_archivo);
 		return POKEMON_INSUFICIENTES;
 	}
 	return TODO_OK;
@@ -90,6 +97,9 @@ lista_t *juego_listar_pokemon(juego_t *juego)
 //comparador de nombres
 int comparador(void *pokemon, void *nombre)
 {
+	if (!pokemon || !nombre){
+		return -1;
+	}
 	pokemon_t *aux_pokemon = (pokemon_t *)pokemon;
 	const char *nombre_pokemon = (const char *)nombre;
 
@@ -106,6 +116,9 @@ int comparador(void *pokemon, void *nombre)
 
 void juego_reasignar_pokemon(juego_t *juego)
 {
+	if (!juego){
+		return;
+	}
 	pokemon_t *aux_pokemon =
 		lista_elemento_en_posicion(juego->jugador_1.pokemones, 2);
 	lista_quitar_de_posicion(juego->jugador_1.pokemones, 2);
@@ -160,6 +173,9 @@ JUEGO_ESTADO juego_seleccionar_pokemon(juego_t *juego, JUGADOR jugador,
 RESULTADO_ATAQUE comprobar_eficacia_ataque(pokemon_t *pokemon,
 					   const struct ataque *ataque_1)
 {
+	if (!pokemon || !ataque_1){
+		return ATAQUE_ERROR;
+	}
 	RESULTADO_ATAQUE ataque_eficacia = ATAQUE_REGULAR;
 
 	if ((pokemon_tipo(pokemon) == PLANTA && ataque_1->tipo == FUEGO) ||
@@ -189,6 +205,9 @@ RESULTADO_ATAQUE comprobar_eficacia_ataque(pokemon_t *pokemon,
 int calcular_puntos(RESULTADO_ATAQUE resultado_ataque,
 		    const struct ataque *ataque_jugador)
 {
+	if(!ataque_jugador){
+		return 0;
+	}
 	int puntos = (int)ataque_jugador->poder;
 	if (resultado_ataque == ATAQUE_EFECTIVO) {
 		puntos = (int)ataque_jugador->poder * 3;
@@ -203,6 +222,9 @@ int calcular_puntos(RESULTADO_ATAQUE resultado_ataque,
 
 bool mostra_pokemon(void *p, void *contexto)
 {
+	if(!p){
+		return false;
+	}
 	printf("Nombre: %s\n", pokemon_nombre(p));
 	return true;
 }
@@ -240,18 +262,6 @@ resultado_jugada_t juego_jugar_turno(juego_t *juego, jugada_t jugada_jugador1,
 		resultado.jugador1 = ATAQUE_ERROR;
 		return resultado;
 	}
-	/*
-	for (int i = 0; i < 9; i++) {
-		if (strcmp(ataque_nombre_1,
-			   juego->jugador_1.ataques_utilizados[i]) == 0) {
-			resultado.jugador1 = ATAQUE_ERROR;
-			return resultado;
-		} else {
-			strcpy(juego->jugador_1.ataques_utilizados[i],
-			       ataque_nombre_1);
-		}
-	}
-	*/
 	bool ataque_ya_utilizado = false;
 	for (int i = 0; i < 9; i++) {
 	if (strcmp(ataque_nombre_1, juego->jugador_1.ataques_utilizados[i]) == 0) {
@@ -288,6 +298,9 @@ resultado_jugada_t juego_jugar_turno(juego_t *juego, jugada_t jugada_jugador1,
 
 int juego_obtener_puntaje(juego_t *juego, JUGADOR jugador)
 {
+	if(!juego){
+		return 0;
+	}
 	if (jugador == JUGADOR1) {
 		return juego->jugador_1.puntos;
 	} else if (jugador == JUGADOR2) {
@@ -298,6 +311,9 @@ int juego_obtener_puntaje(juego_t *juego, JUGADOR jugador)
 
 bool juego_finalizado(juego_t *juego)
 {
+	if (!juego){
+		return false;
+	}
 	if (juego->turnos == 9) {
 		juego->estado_juego = true;
 	}
@@ -306,8 +322,12 @@ bool juego_finalizado(juego_t *juego)
 
 void juego_destruir(juego_t *juego)
 {	
+	if(!juego){
+		return;
+	}
 	lista_destruir(juego->jugador_1.pokemones);
 	lista_destruir(juego->jugador_2.pokemones);
 	lista_destruir(juego->lista_pokemon);
+	pokemon_destruir_todo(juego->pokemones_archivo);
 	free(juego);
 }

@@ -301,6 +301,7 @@ bool jugar(void *e)
 	int puntos_jugador = juego_obtener_puntaje(estado->juego, JUGADOR1);
 	int puntos_adversario = juego_obtener_puntaje(estado->juego, JUGADOR2);
 	mostrar_ganador(puntos_jugador, puntos_adversario);
+	adversario_destruir(adversario);
 	return true;
 }
 
@@ -389,5 +390,6 @@ int main(int argc, char *argv[])
 			printf("Hubo un error al ejecutar el menu, reintente nuevamente.\n");
 		}
 	}
+	juego_destruir(j);
 	menu_destruir(menu);
 }
