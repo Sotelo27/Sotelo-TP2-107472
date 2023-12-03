@@ -7,11 +7,11 @@
 #include <stdlib.h>
 #include <string.h>
 
-struct adversario{
-	lista_t * lista_pokemon;
-	lista_t * pokemones_jugador;
-	lista_t * pokemones_adversario;
-	lista_t * ataques_posibles;
+struct adversario {
+	lista_t *lista_pokemon;
+	lista_t *pokemones_jugador;
+	lista_t *pokemones_adversario;
+	lista_t *ataques_posibles;
 	jugada_t jugadas_posibles[9];
 	int turnos;
 };
@@ -29,19 +29,20 @@ adversario_t *adversario_crear(lista_t *pokemon)
 }
 
 //comparador de nombres
-int comparar_nombres(void *pokemon, void *nombre) {
-    pokemon_t* aux_pokemon = (pokemon_t*)pokemon;
-    const char *nombre_pokemon = (const char *)nombre;
-    
-    const char *nombre_aux_pokemon = pokemon_nombre(aux_pokemon);
-    
-    if (nombre_aux_pokemon != NULL && nombre_pokemon != NULL) {
-        if (strcmp(nombre_aux_pokemon, nombre_pokemon) == 0) {
-            return 0;
-        }
-    }
-    
-    return -1;
+int comparar_nombres(void *pokemon, void *nombre)
+{
+	pokemon_t *aux_pokemon = (pokemon_t *)pokemon;
+	const char *nombre_pokemon = (const char *)nombre;
+
+	const char *nombre_aux_pokemon = pokemon_nombre(aux_pokemon);
+
+	if (nombre_aux_pokemon != NULL && nombre_pokemon != NULL) {
+		if (strcmp(nombre_aux_pokemon, nombre_pokemon) == 0) {
+			return 0;
+		}
+	}
+
+	return -1;
 }
 
 bool adversario_seleccionar_pokemon(adversario_t *adversario, char **nombre1,
@@ -52,23 +53,35 @@ bool adversario_seleccionar_pokemon(adversario_t *adversario, char **nombre1,
 		return false;
 	}
 	size_t indice = 0;
-	pokemon_t * buscar_pokemon = lista_elemento_en_posicion(adversario->lista_pokemon,indice);
-	pokemon_t* pokemon_1 = lista_elemento_en_posicion(adversario->lista_pokemon,0);
-	pokemon_t* pokemon_2 = lista_elemento_en_posicion(adversario->lista_pokemon,1);
-	pokemon_t* pokemon_3 = lista_elemento_en_posicion(adversario->pokemones_jugador,2);
-	*nombre1 = (char*)pokemon_nombre(pokemon_1);
-	*nombre2 = (char*)pokemon_nombre(pokemon_2);
-	char * nombre_aux = (char*)pokemon_nombre(buscar_pokemon);
-	while(lista_elemento_en_posicion(adversario->lista_pokemon,0) == buscar_pokemon  || lista_elemento_en_posicion(adversario->lista_pokemon,1) == buscar_pokemon || lista_elemento_en_posicion(adversario->pokemones_jugador,0) == buscar_pokemon  || lista_elemento_en_posicion(adversario->pokemones_jugador,1) == buscar_pokemon ){
+	pokemon_t *buscar_pokemon =
+		lista_elemento_en_posicion(adversario->lista_pokemon, indice);
+	pokemon_t *pokemon_1 =
+		lista_elemento_en_posicion(adversario->lista_pokemon, 0);
+	pokemon_t *pokemon_2 =
+		lista_elemento_en_posicion(adversario->lista_pokemon, 1);
+	pokemon_t *pokemon_3 =
+		lista_elemento_en_posicion(adversario->pokemones_jugador, 2);
+	*nombre1 = (char *)pokemon_nombre(pokemon_1);
+	*nombre2 = (char *)pokemon_nombre(pokemon_2);
+	char *nombre_aux = (char *)pokemon_nombre(buscar_pokemon);
+	while (lista_elemento_en_posicion(adversario->lista_pokemon, 0) ==
+		       buscar_pokemon ||
+	       lista_elemento_en_posicion(adversario->lista_pokemon, 1) ==
+		       buscar_pokemon ||
+	       lista_elemento_en_posicion(adversario->pokemones_jugador, 0) ==
+		       buscar_pokemon ||
+	       lista_elemento_en_posicion(adversario->pokemones_jugador, 1) ==
+		       buscar_pokemon) {
 		indice += 1;
-		buscar_pokemon = lista_elemento_en_posicion(adversario->lista_pokemon,indice);
-		nombre_aux = (char*)pokemon_nombre(buscar_pokemon);
+		buscar_pokemon = lista_elemento_en_posicion(
+			adversario->lista_pokemon, indice);
+		nombre_aux = (char *)pokemon_nombre(buscar_pokemon);
 	}
 	*nombre3 = nombre_aux;
 	adversario->pokemones_adversario = lista_crear();
-	lista_insertar(adversario->pokemones_adversario,pokemon_1);
-	lista_insertar(adversario->pokemones_adversario,pokemon_2);
-	lista_insertar(adversario->pokemones_adversario,pokemon_3);
+	lista_insertar(adversario->pokemones_adversario, pokemon_1);
+	lista_insertar(adversario->pokemones_adversario, pokemon_2);
+	lista_insertar(adversario->pokemones_adversario, pokemon_3);
 	return true;
 }
 
@@ -79,27 +92,29 @@ bool adversario_pokemon_seleccionado(adversario_t *adversario, char *nombre1,
 	    nombre3 == NULL) {
 		return false;
 	}
-	pokemon_t* pokemon_1 = lista_buscar_elemento(adversario->lista_pokemon,comparar_nombres,(void *)nombre1);
-	pokemon_t* pokemon_2 = lista_buscar_elemento(adversario->lista_pokemon,comparar_nombres,(void *)nombre2);
-	pokemon_t* pokemon_3 = lista_buscar_elemento(adversario->lista_pokemon,comparar_nombres,(void *)nombre3);
+	pokemon_t *pokemon_1 = lista_buscar_elemento(
+		adversario->lista_pokemon, comparar_nombres, (void *)nombre1);
+	pokemon_t *pokemon_2 = lista_buscar_elemento(
+		adversario->lista_pokemon, comparar_nombres, (void *)nombre2);
+	pokemon_t *pokemon_3 = lista_buscar_elemento(
+		adversario->lista_pokemon, comparar_nombres, (void *)nombre3);
 	if (pokemon_1 == NULL || pokemon_2 == NULL || pokemon_3 == NULL) {
 		return false; // Si alguno de los Pokémon no existe en la lista
 	}
-	if ((pokemon_1 == pokemon_2) ||
-	    (pokemon_1 == pokemon_3) ||
+	if ((pokemon_1 == pokemon_2) || (pokemon_1 == pokemon_3) ||
 	    (pokemon_2 == pokemon_3)) {
 		return false; // Si hay Pokémon repetidos en la selección
 	}
-	lista_t * pokemones ;
+	lista_t *pokemones;
 	pokemones = lista_crear();
-	if (!pokemones){
+	if (!pokemones) {
 		return false;
 	}
-	pokemones = lista_insertar(pokemones,pokemon_1);
-	pokemones = lista_insertar(pokemones,pokemon_2);
-	pokemones = lista_insertar(pokemones,pokemon_3);
+	pokemones = lista_insertar(pokemones, pokemon_1);
+	pokemones = lista_insertar(pokemones, pokemon_2);
+	pokemones = lista_insertar(pokemones, pokemon_3);
 	adversario->pokemones_jugador = lista_crear();
-	if (!adversario->pokemones_jugador){
+	if (!adversario->pokemones_jugador) {
 		return false;
 	}
 	adversario->pokemones_jugador = pokemones;
@@ -108,38 +123,51 @@ bool adversario_pokemon_seleccionado(adversario_t *adversario, char *nombre1,
 }
 
 void insertar_ataques(const struct ataque *ataque, void *lista_ataques_posibles)
-{	
-	char * ataque_nombre = (char*)ataque->nombre;
-	lista_insertar(lista_ataques_posibles,ataque_nombre);
+{
+	char *ataque_nombre = (char *)ataque->nombre;
+	lista_insertar(lista_ataques_posibles, ataque_nombre);
 }
 
 jugada_t adversario_proxima_jugada(adversario_t *adversario)
-{	
-	if(!adversario->ataques_posibles){
+{
+	if (!adversario->ataques_posibles) {
 		adversario->ataques_posibles = lista_crear();
-		for (size_t i = 0; i < 3 ; i ++){
-			pokemon_t * pokemon_adversario = lista_elemento_en_posicion(adversario->pokemones_adversario,i);
-			con_cada_ataque(pokemon_adversario,insertar_ataques,adversario->ataques_posibles);
+		for (size_t i = 0; i < 3; i++) {
+			pokemon_t *pokemon_adversario =
+				lista_elemento_en_posicion(
+					adversario->pokemones_adversario, i);
+			con_cada_ataque(pokemon_adversario, insertar_ataques,
+					adversario->ataques_posibles);
 		}
 		adversario->jugadas_posibles[0].pokemon[0] = '\0';
 		adversario->jugadas_posibles[0].pokemon[0] = '\0';
 	}
-	if(strcmp(adversario->jugadas_posibles[0].pokemon, "") == 0){
+	if (strcmp(adversario->jugadas_posibles[0].pokemon, "") == 0) {
 		int indice = 0;
 		adversario->turnos = 0;
-		for (size_t i = 0; i < 3 ; i ++){
-			pokemon_t * pokemon_adversario = lista_elemento_en_posicion(adversario->pokemones_adversario,i);
-			for(int j = 0; j < 3 ; j++){
-				strcpy(adversario->jugadas_posibles[indice].pokemon,pokemon_nombre(pokemon_adversario));
-				strcpy(adversario->jugadas_posibles[indice].ataque,lista_elemento_en_posicion(adversario->ataques_posibles,(size_t)indice));
-				indice ++;
+		for (size_t i = 0; i < 3; i++) {
+			pokemon_t *pokemon_adversario =
+				lista_elemento_en_posicion(
+					adversario->pokemones_adversario, i);
+			for (int j = 0; j < 3; j++) {
+				strcpy(adversario->jugadas_posibles[indice]
+					       .pokemon,
+				       pokemon_nombre(pokemon_adversario));
+				strcpy(adversario->jugadas_posibles[indice]
+					       .ataque,
+				       lista_elemento_en_posicion(
+					       adversario->ataques_posibles,
+					       (size_t)indice));
+				indice++;
 			}
 		}
 	}
 	jugada_t jugada_adversario;
-	strcpy(jugada_adversario.pokemon,adversario->jugadas_posibles[adversario->turnos].pokemon);
-	strcpy(jugada_adversario.ataque,adversario->jugadas_posibles[adversario->turnos].ataque);
-	adversario->turnos ++;
+	strcpy(jugada_adversario.pokemon,
+	       adversario->jugadas_posibles[adversario->turnos].pokemon);
+	strcpy(jugada_adversario.ataque,
+	       adversario->jugadas_posibles[adversario->turnos].ataque);
+	adversario->turnos++;
 	return jugada_adversario;
 }
 
