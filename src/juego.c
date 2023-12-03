@@ -121,7 +121,6 @@ JUEGO_ESTADO juego_seleccionar_pokemon(juego_t *juego, JUGADOR jugador,
 	    nombre3 == NULL) {
 		return ERROR_GENERAL;
 	}
-	printf("\n%s %s %s\n",nombre1,nombre2,nombre3);
 	pokemon_t* pokemon_1 = lista_buscar_elemento(juego->lista_pokemon,comparador,(void *)nombre1);
 	pokemon_t* pokemon_2 = lista_buscar_elemento(juego->lista_pokemon,comparador,(void *)nombre2);
 	pokemon_t* pokemon_3 = lista_buscar_elemento(juego->lista_pokemon,comparador,(void *)nombre3);

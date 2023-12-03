@@ -114,7 +114,6 @@ void insertar_ataques(const struct ataque *ataque, void *lista_ataques_posibles)
 	lista_insertar(lista_ataques_posibles,ataque_nombre);
 }
 
-
 bool mostrar_nombre(void *p, void *aux)
 {
 	jugada_t *auxiliar = (jugada_t*) p;
@@ -122,16 +121,30 @@ bool mostrar_nombre(void *p, void *aux)
 	return true;
 }
 
-jugada_t adversario_proxima_jugada(adversario_t *adversario)
+bool mostrar_algo(void *p, void *aux)
 {
+	printf("\n es el nombre %s\n",(char*)p);
+	return true;
+}
+
+bool mos_pokemon(void *p,void * contexto){
+	printf("Nombre: %s\n",pokemon_nombre(p));
+	return true;
+}
+
+
+jugada_t adversario_proxima_jugada(adversario_t *adversario)
+{	
 	if(!adversario->ataques_posibles){
 		adversario->ataques_posibles = lista_crear();
 		for (size_t i = 0; i < 3 ; i ++){
 			pokemon_t * pokemon_adversario = lista_elemento_en_posicion(adversario->pokemones_adversario,i);
 			con_cada_ataque(pokemon_adversario,insertar_ataques,adversario->ataques_posibles);
 		}
+		adversario->jugadas_posibles[0].pokemon[0] = '\0';
+		adversario->jugadas_posibles[0].pokemon[0] = '\0';
 	}
-	if(strcmp(adversario->jugadas_posibles[0].pokemon, "\0") == 0){
+	if(strcmp(adversario->jugadas_posibles[0].pokemon, "") == 0){
 		int indice = 0;
 		adversario->turnos = 0;
 		for (size_t i = 0; i < 3 ; i ++){
