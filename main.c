@@ -124,22 +124,16 @@ bool validar_repetido(void * e , int turno, char nombre[]){
 }
 
 jugada_t seleccionar_jugada (void * e,int turno){
-	//struct estado_juego *estado = e;
-	int validacion = false;
 	jugada_t jugada_jugador = { .pokemon = "nada", .ataque = "nada" };
-	while (validacion == false){
-		char nombre_1[20],nombre_2[20];
-		printf("Jugador ingresa el nombre del pokemon:\n");
-		fgets(nombre_1, 20, stdin);
-		nombre_1[strlen(nombre_1) - 1] = '\0';
-		printf("Jugador ingresa el nombre del ataque:\n");
-		fgets(nombre_2, 20, stdin);
-		nombre_2[strlen(nombre_2) - 1] = '\0';
-		strcpy(jugada_jugador.pokemon,nombre_1);
-		strcpy(jugada_jugador.ataque,nombre_2);
-		//validacion = validar_repetido(estado,turno,nombre_2);
-		validacion = true;
-	}
+	char nombre_1[20],nombre_2[20];
+	printf("Jugador ingresa el nombre del pokemon:\n");
+	fgets(nombre_1, 20, stdin);
+	nombre_1[strlen(nombre_1) - 1] = '\0';
+	printf("Jugador ingresa el nombre del ataque:\n");
+	fgets(nombre_2, 20, stdin);
+	nombre_2[strlen(nombre_2) - 1] = '\0';
+	strcpy(jugada_jugador.pokemon,nombre_1);
+	strcpy(jugada_jugador.ataque,nombre_2);
 	return jugada_jugador;
 }
 
@@ -271,11 +265,11 @@ bool jugar(void * e){
 		jugada_jugador_2 = adversario_proxima_jugada(adversario);
 		resultado = juego_jugar_turno(estado->juego,jugada_jugador_1,jugada_jugador_2);
 		if(resultado.jugador1 == ATAQUE_ERROR){
-			printf("\nHas escrito un pokemon o un ataque incorrectamente\n");
+			printf("\nHas escrito incorrectamente o el ataque es invalido, reintenta nuevamente\n");
 		}else{
 			turno ++;
+			mostrar_efectividad_ataque(resultado);
 		}
-		mostrar_efectividad_ataque(resultado);
 		juego_finalizado(estado->juego);
 	}
 	int puntos_jugador = juego_obtener_puntaje(estado->juego,JUGADOR1);
@@ -299,7 +293,6 @@ bool mostrar_comandos(){
     printf("\t|| [c] Cargar un archivo                             ||\n");
     printf("\t|| [l] Listar pokemones Disponibles                  ||\n");
     printf("\t|| [j] Jugar                                         ||\n");
-    printf("\t|| [m] Mostrar info ataques de pokemon               ||\n");
     printf("\t|| [q] Finalizar juego                               ||\n");
     printf("\t||~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~||\n");
     printf("\n");
@@ -332,7 +325,6 @@ int main(int argc, char *argv[])
 	menu_agregar_comando(menu,"v","Ver comandos",mostrar_comandos);
 	menu_agregar_comando(menu,"l","Listar pokemones",listar_pokemones);
 	menu_agregar_comando(menu,"c","Cargar un archivo",cargar_archivo);
-	menu_agregar_comando(menu,"m","Mostrar ataque pokemon",mostrar_ataques_pokemon);
 	menu_agregar_comando(menu,"j","Iniciar la partida",jugar);
 	menu_agregar_comando(menu,"q","Finalizar juego",finalizar_juego);
 	mostrar_comandos();

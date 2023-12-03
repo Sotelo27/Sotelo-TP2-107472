@@ -100,12 +100,6 @@ int comparador(void *pokemon, void *nombre) {
     return -1;
 }
 
-//solo de prueba boorar despues
-bool mostra_pokemon(void *p,void * contexto){
-	printf("Nombre: %s\n",pokemon_nombre(p));
-	return true;
-}
-
 void juego_reasignar_pokemon(juego_t *juego){
 	pokemon_t * aux_pokemon = lista_elemento_en_posicion(juego->jugador_1.pokemones,2);
 	lista_quitar_de_posicion(juego->jugador_1.pokemones,2);
@@ -152,13 +146,6 @@ JUEGO_ESTADO juego_seleccionar_pokemon(juego_t *juego, JUGADOR jugador,
 	}
 	return TODO_OK;
 }
-
-// solo de prueba borrar despues
-void mostrar_ataque(const struct ataque *a, void *aux)
-{
-	printf("%s: %i\n", a->nombre, a->poder);
-}
-
 
 // FUNCION LAUTARO MARITN SOTELO
 RESULTADO_ATAQUE comprobar_eficacia_ataque(pokemon_t *pokemon, const struct ataque *ataque_1) {
@@ -213,6 +200,7 @@ resultado_jugada_t juego_jugar_turno(juego_t *juego, jugada_t jugada_jugador1,
 		resultado.jugador2 = ATAQUE_ERROR;
 		return resultado;
 	}
+	printf("\nHOLA!\n");
 	char * ataque_nombre_1 = jugada_jugador1.ataque;
 	const struct ataque * ataque_jugador_1 = pokemon_buscar_ataque(pokemon_jugador_1,ataque_nombre_1);
 	if (!ataque_jugador_1){

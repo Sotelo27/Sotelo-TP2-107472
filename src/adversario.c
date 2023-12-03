@@ -13,7 +13,6 @@ struct adversario{
 	lista_t * pokemones_adversario;
 	lista_t * ataques_posibles;
 	jugada_t jugadas_posibles[9];
-	lista_t * lista_de_prueba;
 	int turnos;
 };
 
@@ -60,7 +59,7 @@ bool adversario_seleccionar_pokemon(adversario_t *adversario, char **nombre1,
 	*nombre1 = (char*)pokemon_nombre(pokemon_1);
 	*nombre2 = (char*)pokemon_nombre(pokemon_2);
 	char * nombre_aux = (char*)pokemon_nombre(buscar_pokemon);
-	while(lista_elemento_en_posicion(adversario->lista_pokemon,0) == buscar_pokemon  || lista_elemento_en_posicion(adversario->lista_pokemon,1) == buscar_pokemon){
+	while(lista_elemento_en_posicion(adversario->lista_pokemon,0) == buscar_pokemon  || lista_elemento_en_posicion(adversario->lista_pokemon,1) == buscar_pokemon || lista_elemento_en_posicion(adversario->pokemones_jugador,0) == buscar_pokemon  || lista_elemento_en_posicion(adversario->pokemones_jugador,1) == buscar_pokemon ){
 		indice += 1;
 		buscar_pokemon = lista_elemento_en_posicion(adversario->lista_pokemon,indice);
 		nombre_aux = (char*)pokemon_nombre(buscar_pokemon);
@@ -113,25 +112,6 @@ void insertar_ataques(const struct ataque *ataque, void *lista_ataques_posibles)
 	char * ataque_nombre = (char*)ataque->nombre;
 	lista_insertar(lista_ataques_posibles,ataque_nombre);
 }
-
-bool mostrar_nombre(void *p, void *aux)
-{
-	jugada_t *auxiliar = (jugada_t*) p;
-	printf("\nel ataque es : %s \n",(char*)auxiliar->ataque);
-	return true;
-}
-
-bool mostrar_algo(void *p, void *aux)
-{
-	printf("\n es el nombre %s\n",(char*)p);
-	return true;
-}
-
-bool mos_pokemon(void *p,void * contexto){
-	printf("Nombre: %s\n",pokemon_nombre(p));
-	return true;
-}
-
 
 jugada_t adversario_proxima_jugada(adversario_t *adversario)
 {	
