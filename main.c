@@ -114,7 +114,8 @@ void mostrar_error_seleccion(JUEGO_ESTADO estado_seleccion){
 	}
 }
 
-jugada_t seleccionar_jugada (){
+jugada_t seleccionar_jugada (void * e){
+	struct estado_juego *estado = e;
 	char nombre_1[20],nombre_2[20];
 	printf("Jugador ingresa el nombre del pokemon:\n");
 	fgets(nombre_1, 20, stdin);
@@ -123,7 +124,9 @@ jugada_t seleccionar_jugada (){
 	printf("Jugador ingresa el nombre del ataque:\n");
 	fgets(nombre_2, 20, stdin);
 	nombre_2[strlen(nombre_2) - 1] = '\0';
-	jugada_t jugada_jugador = { .pokemon = nombre_1, .ataque = nombre_2 };
+	jugada_t jugada_jugador = { .pokemon = "nada", .ataque = "nada" };
+	strcpy(jugada_jugador.pokemon,nombre_1);
+	strcpy(jugada_jugador.ataque,nombre_2);
 	return jugada_jugador;
 }
 
@@ -157,7 +160,8 @@ bool jugar(void * e){
 	printf("\nPerfecto que comienze el juego!\n");
 	while(!juego_finalizado(estado->juego)){
 		jugada_t jugada_jugador_1 ;
-		jugada_jugador_1 = seleccionar_jugada();
+		jugada_jugador_1 = seleccionar_jugada(estado->juego);
+		
 	}
 	return true;
 }
