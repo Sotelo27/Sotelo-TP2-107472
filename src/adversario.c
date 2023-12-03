@@ -83,7 +83,7 @@ bool adversario_seleccionar_pokemon(adversario_t *adversario, char **nombre1,
 		nombre_aux = (char *)pokemon_nombre(buscar_pokemon);
 	}
 	*nombre3 = nombre_aux;
-	lista_t * pokemones = lista_crear();
+	lista_t *pokemones = lista_crear();
 	lista_insertar(pokemones, pokemon_1);
 	lista_insertar(pokemones, pokemon_2);
 	lista_insertar(pokemones, pokemon_3);
@@ -133,8 +133,8 @@ void insertar_ataques(const struct ataque *ataque, void *lista_ataques_posibles)
 
 jugada_t adversario_proxima_jugada(adversario_t *adversario)
 {
-	jugada_t jugada_adversario = {.ataque = "" ,.pokemon = ""};
-	if (!adversario){
+	jugada_t jugada_adversario = { .ataque = "", .pokemon = "" };
+	if (!adversario) {
 		return jugada_adversario;
 	}
 	if (!adversario->ataques_posibles) {

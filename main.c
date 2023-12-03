@@ -34,7 +34,7 @@ bool cargar_archivo(void *e)
 	if (!estado) {
 		return false;
 	}
-	if(estado->archivo_cargado == true){
+	if (estado->archivo_cargado == true) {
 		printf("\nYa se a cargado el archivo\n");
 		return true;
 	}
@@ -76,7 +76,7 @@ bool listar_pokemones(void *e)
 	if (!estado) {
 		return false;
 	}
-	if(estado->archivo_cargado == false){
+	if (estado->archivo_cargado == false) {
 		printf("\nNo se a cargado ningun archivo, cargue un archivo para listar pokemones\n");
 		return true;
 	}
@@ -273,7 +273,7 @@ bool jugar(void *e)
 	if (!estado) {
 		return false;
 	}
-	if(estado->archivo_cargado == false){
+	if (estado->archivo_cargado == false) {
 		printf("\nNo se a cargado ningun archivo, cargue un archivo para jugar\n");
 		return true;
 	}
@@ -369,7 +369,7 @@ bool mostrar_tabla_tipos(void *e)
 	if (!estado) {
 		return false;
 	}
-	if(estado->archivo_cargado == false){
+	if (estado->archivo_cargado == false) {
 		printf("\nNo se a cargado ningun archivo, cargue un archivo para jugar\n");
 		return true;
 	}
@@ -406,9 +406,9 @@ void motrar_reglas()
 
 int main(int argc, char *argv[])
 {
-	struct estado_juego estado = { 
-				       .continuar = true,
-				       .juego_iniciado = false ,.archivo_cargado = false};
+	struct estado_juego estado = { .continuar = true,
+				       .juego_iniciado = false,
+				       .archivo_cargado = false };
 	menu_t *menu = menu_crear();
 	menu_agregar_comando(menu, "v", "Ver comandos", mostrar_comandos);
 	menu_agregar_comando(menu, "l", "Listar pokemones", listar_pokemones);
