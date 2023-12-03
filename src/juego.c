@@ -77,10 +77,9 @@ JUEGO_ESTADO juego_cargar_pokemon(juego_t *juego, char *archivo)
 	int cantidad_pokemon = con_cada_pokemon(
 		juego->pokemones_archivo, insertar_pokemon_lista, juego->lista_pokemon);
 	if (cantidad_pokemon < 4) {
-		lista_destruir(juego->jugador_1.pokemones);
-		lista_destruir(juego->jugador_2.pokemones);
 		lista_destruir(juego->lista_pokemon);
 		pokemon_destruir_todo(juego->pokemones_archivo);
+		juego->lista_pokemon = NULL;
 		return POKEMON_INSUFICIENTES;
 	}
 	return TODO_OK;
@@ -150,19 +149,31 @@ JUEGO_ESTADO juego_seleccionar_pokemon(juego_t *juego, JUGADOR jugador,
 	    (pokemon_2 == pokemon_3)) {
 		return POKEMON_REPETIDO; // Si hay Pokémon repetidos en la selección
 	}
+	
 	lista_t *pokemones;
 	pokemones = lista_crear();
 	if (!pokemones) {
+		lista_destruir(pokemones);
 		return ERROR_GENERAL;
 	}
-	pokemones = lista_insertar(pokemones, pokemon_1);
-	pokemones = lista_insertar(pokemones, pokemon_2);
-	pokemones = lista_insertar(pokemones, pokemon_3);
+	lista_insertar(pokemones, pokemon_1);
+	lista_insertar(pokemones, pokemon_2);
+	lista_insertar(pokemones, pokemon_3);
 	if (jugador == JUGADOR1) {
-		juego->jugador_1.pokemones = lista_crear();
+		juego->jugador_1.pokemones = pokemones;
+		if (!juego->jugador_1.pokemones){
+			lista_destruir(juego->jugador_1.pokemones);
+			lista_destruir(pokemones);
+			return ERROR_GENERAL;
+		}
 		juego->jugador_1.pokemones = pokemones;
 	} else if (jugador == JUGADOR2) {
-		juego->jugador_2.pokemones = lista_crear();
+		juego->jugador_2.pokemones = pokemones;
+		if (!juego->jugador_1.pokemones){
+			lista_destruir(juego->jugador_2.pokemones);
+			lista_destruir(pokemones);
+			return ERROR_GENERAL;
+		}
 		juego->jugador_2.pokemones = pokemones;
 		juego_reasignar_pokemon(juego);
 	}
@@ -314,7 +325,7 @@ bool juego_finalizado(juego_t *juego)
 	if (!juego){
 		return false;
 	}
-	if (juego->turnos == 9) {
+	if (juego->turnos == 3) {
 		juego->estado_juego = true;
 	}
 	return juego->estado_juego;

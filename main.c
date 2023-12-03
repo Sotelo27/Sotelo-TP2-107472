@@ -186,11 +186,11 @@ lista_t *guardar_pokemones_jugador(void *e, lista_t *lista, char nombre_1[],
 	pokemon_t *pokemon_3 = lista_buscar_elemento(
 		juego_listar_pokemon(estado->juego), comparar_nombre_pokemon,
 		(void *)nombre_3);
-	lista = lista_crear();
-	lista_insertar(lista,pokemon_1);
-	lista_insertar(lista,pokemon_2);
-	lista_insertar(lista,pokemon_3);
-	return lista;
+	lista_t * lista_con_pokemones = lista_crear();
+	lista_insertar(lista_con_pokemones,pokemon_1);
+	lista_insertar(lista_con_pokemones,pokemon_2);
+	lista_insertar(lista_con_pokemones,pokemon_3);
+	return lista_con_pokemones;
 }
 
 char *conseguir_tipo(enum TIPO tipo_pokemon)
@@ -271,7 +271,7 @@ bool jugar(void *e)
 	resultado_jugada_t resultado = { .jugador1 = ATAQUE_ERROR };
 	estado->pokemon_jugador = guardar_pokemones_jugador(estado,estado->pokemon_jugador, nombre_1, nombre_2,
 				  eleccionAdversario3);
-	estado->pokemon_adversario = guardar_pokemones_jugador(estado,estado->pokemon_jugador, eleccionAdversario1,
+	estado->pokemon_adversario = guardar_pokemones_jugador(estado,estado->pokemon_adversario, eleccionAdversario1,
 				  eleccionAdversario2, nombre_3);
 	printf("\n Asi se a quedado conformado tu equipo pokemon : \n");
 	lista_con_cada_elemento(estado->pokemon_jugador,mostrar_datos_equipo,NULL);
@@ -302,6 +302,9 @@ bool jugar(void *e)
 	int puntos_adversario = juego_obtener_puntaje(estado->juego, JUGADOR2);
 	mostrar_ganador(puntos_jugador, puntos_adversario);
 	adversario_destruir(adversario);
+	lista_destruir(estado->pokemon_jugador);
+	lista_destruir(estado->pokemon_adversario);
+	juego_destruir(estado->juego);
 	return true;
 }
 
@@ -374,6 +377,7 @@ int main(int argc, char *argv[])
 	menu_agregar_comando(menu, "j", "Iniciar la partida", jugar);
 	menu_agregar_comando(menu, "q", "Finalizar juego", finalizar_juego);
 	mostrar_comandos();
+	
 	while (estado.continuar) {
 		printf("Ingresa un comando a continuacion\n");
 		char linea[200];
@@ -390,6 +394,5 @@ int main(int argc, char *argv[])
 			printf("Hubo un error al ejecutar el menu, reintente nuevamente.\n");
 		}
 	}
-	juego_destruir(j);
 	menu_destruir(menu);
 }

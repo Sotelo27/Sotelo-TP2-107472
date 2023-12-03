@@ -22,7 +22,6 @@ adversario_t *adversario_crear(lista_t *pokemon)
 	if (!adversario) {
 		return NULL;
 	}
-	adversario->lista_pokemon = lista_crear();
 	adversario->lista_pokemon = pokemon;
 	adversario->pokemones_adversario = NULL;
 	adversario->ataques_posibles = NULL;
@@ -84,10 +83,11 @@ bool adversario_seleccionar_pokemon(adversario_t *adversario, char **nombre1,
 		nombre_aux = (char *)pokemon_nombre(buscar_pokemon);
 	}
 	*nombre3 = nombre_aux;
-	adversario->pokemones_adversario = lista_crear();
-	lista_insertar(adversario->pokemones_adversario, pokemon_1);
-	lista_insertar(adversario->pokemones_adversario, pokemon_2);
-	lista_insertar(adversario->pokemones_adversario, pokemon_3);
+	lista_t * pokemones = lista_crear();
+	lista_insertar(pokemones, pokemon_1);
+	lista_insertar(pokemones, pokemon_2);
+	lista_insertar(pokemones, pokemon_3);
+	adversario->pokemones_adversario = pokemones;
 	return true;
 }
 
@@ -114,15 +114,12 @@ bool adversario_pokemon_seleccionado(adversario_t *adversario, char *nombre1,
 	lista_t *pokemones;
 	pokemones = lista_crear();
 	if (!pokemones) {
+		lista_destruir(pokemones);
 		return false;
 	}
-	pokemones = lista_insertar(pokemones, pokemon_1);
-	pokemones = lista_insertar(pokemones, pokemon_2);
-	pokemones = lista_insertar(pokemones, pokemon_3);
-	adversario->pokemones_jugador = lista_crear();
-	if (!adversario->pokemones_jugador) {
-		return false;
-	}
+	lista_insertar(pokemones, pokemon_1);
+	lista_insertar(pokemones, pokemon_2);
+	lista_insertar(pokemones, pokemon_3);
 	adversario->pokemones_jugador = pokemones;
 
 	return true;
@@ -179,7 +176,6 @@ jugada_t adversario_proxima_jugada(adversario_t *adversario)
 	adversario->turnos++;
 	return jugada_adversario;
 }
-
 void adversario_informar_jugada(adversario_t *a, jugada_t j)
 {
 }
@@ -187,7 +183,6 @@ void adversario_informar_jugada(adversario_t *a, jugada_t j)
 void adversario_destruir(adversario_t *adversario)
 {
 	lista_destruir(adversario->ataques_posibles);
-	lista_destruir(adversario->lista_pokemon);
 	lista_destruir(adversario->pokemones_jugador);
 	lista_destruir(adversario->pokemones_adversario);
 	free(adversario);

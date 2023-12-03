@@ -35,7 +35,14 @@ MENU_RESULTADO menu_ejecutar_comando(menu_t* m , char* comando , void * contexto
 	return MENU_ERROR;
 }
 
+void destruir_elementos(void *elemento)
+{
+	if (!elemento)
+		return;
+	free(elemento);
+}
+
 void menu_destruir(menu_t* m){
-	hash_destruir(m->comandos);
+	hash_destruir_todo(m->comandos,destruir_elementos);
 	free(m);
 }
