@@ -196,6 +196,12 @@ int calcular_puntos(RESULTADO_ATAQUE resultado_ataque,
 	return puntos;
 }
 
+bool mostra_pokemon(void *p, void *contexto)
+{
+	printf("Nombre: %s\n", pokemon_nombre(p));
+	return true;
+}
+
 resultado_jugada_t juego_jugar_turno(juego_t *juego, jugada_t jugada_jugador1,
 				     jugada_t jugada_jugador2)
 {
@@ -267,7 +273,7 @@ int juego_obtener_puntaje(juego_t *juego, JUGADOR jugador)
 
 bool juego_finalizado(juego_t *juego)
 {
-	if (juego->turnos == 3) {
+	if (juego->turnos == 9) {
 		juego->estado_juego = true;
 	}
 	return juego->estado_juego;
