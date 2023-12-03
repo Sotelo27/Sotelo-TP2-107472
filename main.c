@@ -167,9 +167,10 @@ int compar_noms(void *pokemon, void *nombre)
 	return -1;
 }
 
-pokemon_t **guardar_pokemones_jugador(void *e, char nombre_1[], char nombre_2[],char nombre_3[],pokemon_t * pokemon_jugador[])
+pokemon_t **guardar_pokemones_jugador(void *e, char nombre_1[], char nombre_2[],
+				      char nombre_3[],
+				      pokemon_t *pokemon_jugador[])
 {
-
 	if (!e) {
 		return NULL;
 	}
@@ -183,7 +184,9 @@ pokemon_t **guardar_pokemones_jugador(void *e, char nombre_1[], char nombre_2[],
 	pokemon_t *pokemon_2 =
 		lista_buscar_elemento(juego_listar_pokemon(estado->juego),
 				      compar_noms, (void *)nombre_2);
-	pokemon_t *pokemon_3 =lista_buscar_elemento(juego_listar_pokemon(estado->juego),compar_noms, (void *)nombre_3);
+	pokemon_t *pokemon_3 =
+		lista_buscar_elemento(juego_listar_pokemon(estado->juego),
+				      compar_noms, (void *)nombre_3);
 	pokemon_jugador[0] = pokemon_1;
 	pokemon_jugador[1] = pokemon_2;
 	pokemon_jugador[2] = pokemon_3;
@@ -191,25 +194,25 @@ pokemon_t **guardar_pokemones_jugador(void *e, char nombre_1[], char nombre_2[],
 	return pokemon_jugador;
 }
 
-char * conseguir_tipo(enum TIPO tipo_pokemon){
-	
+char *conseguir_tipo(enum TIPO tipo_pokemon)
+{
 	switch (tipo_pokemon) {
-		case ELECTRICO:
+	case ELECTRICO:
 		return "E";
 
-		case FUEGO:
+	case FUEGO:
 		return "F";
 
-		case NORMAL:
+	case NORMAL:
 		return "N";
 
-		case AGUA:
+	case AGUA:
 		return "A";
 
-		case ROCA:
+	case ROCA:
 		return "R";
 
-		case PLANTA:
+	case PLANTA:
 		return "P";
 	}
 	return NULL;
@@ -217,23 +220,33 @@ char * conseguir_tipo(enum TIPO tipo_pokemon){
 
 void mostra_ataque(const struct ataque *a, void *aux)
 {
-	printf("%s: %i \n", a->nombre, a->poder);
+    printf("┌─────────────────────┬───────────┬─────────┐\n");
+    printf("│ Nombre del Ataque   │ Poder     │ Tipo    │\n");
+    printf("├─────────────────────┼───────────┼─────────┤\n");
+    printf("│ %-20s│ %-9d │ %-8s│\n", a->nombre, a->poder, conseguir_tipo(a->tipo));
+    printf("└─────────────────────┴───────────┴─────────┘\n");
 }
 
-void mostrar_ataques_pokemon(void *e,pokemon_t * pokemon_jugador [])
+void mostrar_ataques_pokemon(void *e, pokemon_t *pokemon_jugador[])
 {
 	if (!e) {
-		return ;
+		return;
 	}
 	struct estado_juego *estado = e;
 	if (!estado) {
-		return ;
+		return;
 	}
-	printf("\nEl pokemon numero 1 es %s de tipo %s y sus ataques son : \n",pokemon_nombre(pokemon_jugador[0]),conseguir_tipo(pokemon_tipo(pokemon_jugador[0])));
+	printf("\nEl pokemon numero 1 es %s de tipo %s y sus ataques son : \n",
+	       pokemon_nombre(pokemon_jugador[0]),
+	       conseguir_tipo(pokemon_tipo(pokemon_jugador[0])));
 	con_cada_ataque(pokemon_jugador[0], mostra_ataque, NULL);
-	printf("\nEl pokemon numero 1 es %s de tipo %s y sus ataques son : \n",pokemon_nombre(pokemon_jugador[1]),conseguir_tipo(pokemon_tipo(pokemon_jugador[1])));
+	printf("\nEl pokemon numero 2 es %s de tipo %s y sus ataques son : \n",
+	       pokemon_nombre(pokemon_jugador[1]),
+	       conseguir_tipo(pokemon_tipo(pokemon_jugador[1])));
 	con_cada_ataque(pokemon_jugador[1], mostra_ataque, NULL);
-	printf("\nEl pokemon numero 1 es %s de tipo %s y sus ataques son : \n",pokemon_nombre(pokemon_jugador[2]),conseguir_tipo(pokemon_tipo(pokemon_jugador[2])));
+	printf("\nEl pokemon numero 3 es %s de tipo %s y sus ataques son : \n",
+	       pokemon_nombre(pokemon_jugador[2]),
+	       conseguir_tipo(pokemon_tipo(pokemon_jugador[2])));
 	con_cada_ataque(pokemon_jugador[2], mostra_ataque, NULL);
 }
 
@@ -272,12 +285,15 @@ bool jugar(void *e)
 				  eleccionAdversario2, eleccionAdversario3);
 	int turno = 0;
 	resultado_jugada_t resultado = { .jugador1 = ATAQUE_ERROR };
-	guardar_pokemones_jugador(estado, nombre_1, nombre_2,eleccionAdversario3,estado->pokemon_jugador);
-	guardar_pokemones_jugador(estado, eleccionAdversario1, eleccionAdversario2,nombre_3,estado->pokemon_adversario);
+	guardar_pokemones_jugador(estado, nombre_1, nombre_2,
+				  eleccionAdversario3, estado->pokemon_jugador);
+	guardar_pokemones_jugador(estado, eleccionAdversario1,
+				  eleccionAdversario2, nombre_3,
+				  estado->pokemon_adversario);
 	printf("\n Asi se a quedado conformado tu equipo pokemon : \n");
-	mostrar_ataques_pokemon(estado,estado->pokemon_jugador);
+	mostrar_ataques_pokemon(estado, estado->pokemon_jugador);
 	printf("\n Asi se a quedado conformado el equipo pokemon  adversario: \n");
-	mostrar_ataques_pokemon(estado,estado->pokemon_adversario);
+	mostrar_ataques_pokemon(estado, estado->pokemon_adversario);
 	printf("\nPerfecto que comienze el juego!\n");
 	while (!juego_finalizado(estado->juego)) {
 		jugada_t jugada_jugador_1;
@@ -292,7 +308,8 @@ bool jugar(void *e)
 			turno++;
 			mostrar_efectividad_ataque(resultado);
 			printf("\nEstos son tus ataques: \n");
-			mostrar_ataques_pokemon(estado,estado->pokemon_jugador);
+			mostrar_ataques_pokemon(estado,
+						estado->pokemon_jugador);
 		}
 		juego_finalizado(estado->juego);
 	}
@@ -324,17 +341,18 @@ bool mostrar_comandos()
 	return true;
 }
 
-bool mostrar_tabla_tipos(){
-    printf("╔══════════════════════╗\n");
-    printf("║ Tipos de Pokémon:    ║\n");
-    printf("╠══════════════════════╣\n");
-    printf("║ ELECTRICO: E         ║\n");
-    printf("║ FUEGO:     F         ║\n");
-    printf("║ NORMAL:    N         ║\n");
-    printf("║ AGUA:      A         ║\n");
-    printf("║ ROCA:      R         ║\n");
-    printf("║ PLANTA:    P         ║\n");
-    printf("╚══════════════════════╝\n");
+bool mostrar_tabla_tipos()
+{
+	printf("╔══════════════════════╗\n");
+	printf("║ Tipos de Pokémon:    ║\n");
+	printf("╠══════════════════════╣\n");
+	printf("║ ELECTRICO: E         ║\n");
+	printf("║ FUEGO:     F         ║\n");
+	printf("║ NORMAL:    N         ║\n");
+	printf("║ AGUA:      A         ║\n");
+	printf("║ ROCA:      R         ║\n");
+	printf("║ PLANTA:    P         ║\n");
+	printf("╚══════════════════════╝\n");
 	return true;
 }
 
