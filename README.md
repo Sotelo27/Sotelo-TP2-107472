@@ -75,10 +75,89 @@ Guarda en `lista_pokemon` los pokemones con los que puede trabajar, en `pokemone
 
 Explicando por ahora como se conforma cada uno y las condiciones del juego, el juego se desarrolla a lo largo de 9 turnos , donde cada jugador decidira que ataque realizar frente a su contricante, hasta alcanzar el limite de ataques posibles.Prosigo a explicar como se decidio desarrollar en primer caso, el juego, luego el adversario y el main.
 
+## Implementacion
+
+Consideraciones del TP
+
+- El adversario siempre usara los dos primeros pokemon , y en su seleccion de pokemon numero 3, le dara al usuario un pokemon que no tenga.
+- Teniendo en cuenta que el archivo sea correcto, se considera que siempre los ataques seran diferentes, y cada pokemon de tu equipo tendra ataques diferentes.
+- Se utilizaron los TDA de Lista para guardar los pokemones, y de HASH para guardar cada comando del menu, explicado luego en el main.
+
 ### Juego y Jugador :
 
+El juego , y cada uno de los jugadores y su informacion nse encuentran en el archivo `juego.c` con los struct definidos anteriormente.Primero se crea el juego , el cual , carga los archivos pokemon del TP1, reservando memoria para el mismo e inicializando los valores y los puntos del mismo , en la funcion `juego_crear()` la cual , tiene complejidad O(1), a pesar de que haya un for que inicialize los valores del vector ataques_utilizados, es de manera constante.Luego tenemos `juego_cargar_pokemon` , retornando un enum `JUEGO_ESTADO` indicando si se pudo o no cargar los pokemones, recibiendo un puntero al juego creado y el archivo , la misma que es O(n) ya que depende de la cantidad de pokemones, para ir insertando en la lista_pokemones cada uno de los pokemon O(1).
+Tambien tenemos `juego_listar_pokemon`  que es O(1) , solamente retorna una lista a la lista interna guardada en el TDA juego, para uso luego.
+Luego ya pasariamos a la parte donde el usuario ya interactua con el juego, con `juego_seleccionar_pokemon` O(n) , que recibe el puntero al juego y se le indica con un enum si se trata del jugador 1 o el jugador 2 ```c JUGADOR 1 JUGADOR 2``` , y los nombres que haya elegido cada usuario.Destacar que el tercer pokemon es para el rival , pero para mi implementacion decidi guardarlos de igual manera en la lista_pokemon de cada jugador, y luego usar una funcion auxiliar para intercambiar el ultimo valor, siendo que siempre son 3 pokemon , el pokemon en la posicion 2 sera el pokemon para el contrario.
+```c
+void juego_reasignar_pokemon(juego_t *juego)
+{
+	if (!juego) {
+		return;
+	}
+	pokemon_t *aux_pokemon =
+		lista_elemento_en_posicion(juego->jugador_1.pokemones, 2); // guardo el ultimo pokemon del jugador 1
+	lista_quitar_de_posicion(juego->jugador_1.pokemones, 2); // lo quito
+	lista_insertar_en_posicion(
+		juego->jugador_1.pokemones,
+		lista_elemento_en_posicion(juego->jugador_2.pokemones, 2), 2); // Le inserto el elemento en la ultima posicion de la lista pokemon del jugador contrario.
+	lista_quitar_de_posicion(juego->jugador_2.pokemones, 2); // Quito y luego reemplazo .
+	lista_insertar_en_posicion(juego->jugador_2.pokemones, aux_pokemon, 2);
+}
+```
+Tambien utiliza un comparador de nombres, para evaluar si el nombre pasado por el usuario es correcto o no.
+Pasando ya a la jugabilidad tenemos a `juego_jugar_turno` , funcion que, recibe el juego y las jugadas de cada jugador `jugada_t` que contiene el nombre, y el ataque que haya decido el usuario hacer , y retornara segun como se evualue con la tabla de tipos, si el ataque del jugador 1 es efectivo frente al otro o viceversa, como tambien si fue un ataque normal.Para ello se busca si existe el pokemon en la lista_pokemones de cada usuario, luego se busca si el ataque es el correcto, y por ultimo se evalua si el ataque fue utilizado, segun de acuerdo al vector que posee cada usuario de ataques usados.Si las condiciones son las correctas, `comprobar_efica_ataque` sacara la eficacia de cada jugador, y `calcular_puntos` evualuara cuantos puntos se le asigna a cada jugador.Tras cada llamada a `juego_jugar_turno` se aumentara el turno jugado.
 
+Y por ultimo las 3 funciones mas simples por parte del juego son `juego_obtener_puntaje` O(1) que recibe el puntero a juego y el jugador que se desea obtener el puntaje, devolviendolo en tipo int, `juego_finalizado` O(1) evualuara si los turnos jugados son iguales a 9, cuando se cumpla la condicion , el booleano interno de la estructura de juego pasara a ser `true` indicando que el juego finalizo.Y por ultimo `juego_destruir` :
 
+```c
+void juego_destruir(juego_t *juego)
+{
+	if (!juego) {
+		return;
+	}
+	lista_destruir(juego->jugador_1.pokemones); // destruye las listas_t de los pokemones que posee cada usuario
+	lista_destruir(juego->jugador_2.pokemones);
+	lista_destruir(juego->lista_pokemon); // destruye la lista_t de todos los pokemones
+	pokemon_destruir_todo(juego->pokemones_archivo); // destruye el archivo de pokemones
+	free(juego); // finalmente libera toda la memora
+}
+```
+
+### Adversario
+
+El adversario en este TP es el que se enfrenta al usuario.Para ello mismo el adversario posee unas ciertas funciones que lo ayudan a tomar decisiones a la hora de eligir sus jugadas, y los pokemones.Inicialmente se utiliza a `adversario_crear` O(1) , la cual crea el mismo y se le asigna la lista_t de pokemones que se consiguio leyendo el archivo, inicializando los otros valores del struct en 0.
+
+Luego tendriamos `adversario_seleccionar_pokemon` y `adversario_pokemon_seleccionado` , ambas comportandose similar a la funcion de seleccionar de juego y entre ellas, pero con motivos diferentes.La primera en cuestion el adversario selecciona sus pokemon , y la segunda le informa los pokemones que eligio el jugador contrario.En mi implementacion , la seleccion de pokemon del adversario depende de lo seleccionado por el jugador contrario, ya que en `adversario_pokemon_seleccionado` O(n) ya que debe buscar cada pokemon de acuerdo a su nombre, guarda en una lista para si mismo los pokemones que el jugador usuario haya elegido, comprobando previamente que existan en su lista_pokemon totales, y luego `adversario_seleccionar_pokemon` O(n) se encargara de tomar los valores que hay en esa lista, para buscar un pokemon el e cual darle al jugador usuario en un bucle while 
+```c 
+while (lista_elemento_en_posicion(adversario->lista_pokemon, 0) ==
+		       buscar_pokemon ||
+	       lista_elemento_en_posicion(adversario->lista_pokemon, 1) ==
+		       buscar_pokemon ||
+	       lista_elemento_en_posicion(adversario->pokemones_jugador, 0) ==
+		       buscar_pokemon ||
+	       lista_elemento_en_posicion(adversario->pokemones_jugador, 1) ==
+		       buscar_pokemon) {
+		indice += 1;
+		buscar_pokemon = lista_elemento_en_posicion(
+			adversario->lista_pokemon, indice);
+		nombre_aux = (char *)pokemon_nombre(buscar_pokemon);
+}
+```
+
+Que el cual, como se detallo anteriormente, verifica que el pokemon que se busca sea diferente a los pokemones de la posicion 0 y 1 de la lista del jugador usuario, y tambien de la lista_pokemon, ya que siempre el jugador maquina elige los 2 primeros pokemones de la lista, hasta que se cumpla la condicion.
+Por ultimo por parte de de la jugabiliad tenemos a `adversario_proxima_jugada` y `adversario_informar_jugada` , que en el caso de la ultima no se implemento ya que , como se ve en `adversario_proxima_jugada` el jugador maquina solamente ira en un orden preestablecido eligiendo sus ataques.Esta funcion devuelve un `jugada_t` de lo que el jugador maquina haya seleccionado jugar en el turno que se encuentre. Por ultimo `adversario_destruir` se encarga de liberar las listas_t que se encuentren y el adversario.
+
+### Menu y main
+
+Por ultimo tenemos ya la implementacion de lo desarrollado anteriormente en un menu(`menu.h`,`menu.c`) interactuable por parte del usuario.Para ello se utilizo el TDA HASH para la creacion de un menu con comandos, asignados a preferencia del programa, el cual guarda una clave con la funcion asociada para hacer el llamado de dicha funcion.Sus complejidades de cada funcion son: 
+
+- `menu_crear` : se encarga de crear el menu , es O(1).
+- `menu_agregar_comando` : Asigna memoria para la estructura de `informacion_comando` , dicha complejidad depende de la complejidad promedio del `hash_insertar` , pero para esta situacion es O(1).
+- `menu_ejecutar_comando`: Obtiene el comando se que busca, si la tabla hash esta implementada bien, en esta situacion es O(1).
+- `destruir_elementos` : Funcion auxiliar para eliminar los elementos, solo hace una llama a `free` por lo tanto es O(1).
+- `menu_destruir`: libera la memoria almacenada, en el peor de los casos es O(n) .
+
+Explicado el menu y su funcionalidad, pasemos al main.
 
 ## Respuestas a las preguntas teóricas
 Incluír acá las respuestas a las preguntas del enunciado (si aplica).

@@ -68,6 +68,7 @@ JUEGO_ESTADO juego_cargar_pokemon(juego_t *juego, char *archivo)
 		return ERROR_GENERAL;
 	}
 
+
 	if (!juego->lista_pokemon) {
 		juego->lista_pokemon = lista_crear();
 		if (!juego->lista_pokemon) {
