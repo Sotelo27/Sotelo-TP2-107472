@@ -34,6 +34,8 @@ juego_t *juego_crear()
 	juego->lista_pokemon = NULL;
 	juego->estado_juego = false;
 	juego->turnos = 0;
+	juego->jugador_1.puntos = 0;
+	juego->jugador_2.puntos = 0;
 	return juego;
 }
 
@@ -195,6 +197,9 @@ int calcular_puntos(RESULTADO_ATAQUE resultado_ataque,const struct ataque * ataq
 resultado_jugada_t juego_jugar_turno(juego_t *juego, jugada_t jugada_jugador1,
 				     jugada_t jugada_jugador2)
 {
+	if (juego->turnos == 0){
+		juego->jugador_1.puntos = 0;
+	}
 	resultado_jugada_t resultado;
 	resultado.jugador1 = ATAQUE_ERROR;
 	resultado.jugador2 = ATAQUE_ERROR;
@@ -209,6 +214,11 @@ resultado_jugada_t juego_jugar_turno(juego_t *juego, jugada_t jugada_jugador1,
 		return resultado;
 	}
 	char * ataque_nombre_1 = jugada_jugador1.ataque;
+	const struct ataque * ataque_jugador_1 = pokemon_buscar_ataque(pokemon_jugador_1,ataque_nombre_1);
+	if (!ataque_jugador_1){
+		resultado.jugador1 = ATAQUE_ERROR;
+		return resultado;
+	}
 	for (int i = 0 ; i < 9 ; i++){
 		if(strcmp(ataque_nombre_1, juego->jugador_1.ataques_utilizados[i]) == 0){
 			resultado.jugador1 = ATAQUE_ERROR;
@@ -218,11 +228,6 @@ resultado_jugada_t juego_jugar_turno(juego_t *juego, jugada_t jugada_jugador1,
 		}
 	}
 	char * ataque_nombre_2 = jugada_jugador2.ataque;
-	const struct ataque * ataque_jugador_1 = pokemon_buscar_ataque(pokemon_jugador_1,ataque_nombre_1);
-	if (!ataque_jugador_1){
-		resultado.jugador1 = ATAQUE_ERROR;
-		return resultado;
-	}
 	const struct ataque * ataque_jugador_2 = pokemon_buscar_ataque(pokemon_jugador_2,ataque_nombre_2);
 	if (!ataque_jugador_2){
 		resultado.jugador1 = ATAQUE_ERROR;
@@ -248,7 +253,7 @@ int juego_obtener_puntaje(juego_t *juego, JUGADOR jugador)
 
 bool juego_finalizado(juego_t *juego)
 {
-	if(juego->turnos == 9){
+	if(juego->turnos == 3){
 		juego->estado_juego = true;
 	}
 	return juego->estado_juego;

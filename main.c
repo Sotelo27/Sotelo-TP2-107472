@@ -12,9 +12,9 @@
 struct estado_juego{
 	juego_t * juego;
 	menu_t* menu;
+	pokemon_t *pokemon_jugador[2];
 	bool continuar;
 	bool juego_iniciado;
-	char ataques_utilizados[9][20];
 };
 
 bool verificar_ataque(char *ataques_jugador[], char *ataque_nombre,int limite) {
@@ -91,14 +91,6 @@ void ingresar_nombres(char nombre_1[], char nombre_2[], char nombre_3[]) {
     nombre_3[strlen(nombre_3) - 1] = '\0';
 }
 
-bool mostrar_tipo_pokemon(){
-	return true;
-}
-
-bool mostrar_ataques_pokemon(){
-	return true;
-}
-
 void mostrar_error_seleccion(JUEGO_ESTADO estado_seleccion){
 	if(estado_seleccion == POKEMON_INEXISTENTE){
 		printf("\nHas ingresado un pokemon que no se encuentra en la lista cargada, reintenta nuevamente.\n");
@@ -115,23 +107,27 @@ void mostrar_error_seleccion(JUEGO_ESTADO estado_seleccion){
 }
 
 bool validar_repetido(void * e , int turno, char nombre[]){
+	/*
 	struct estado_juego *estado = e;
 	for (int i = 0 ; i < turno ; i++){
 		if(strcmp(nombre, estado->ataques_utilizados[i]) == 0){
-			printf("\nEsta repetido\n");
+			printf("\nEse ataque ya lo has utilizado, ingresa un ataque que no hayas utilizado.\n");
 			return false;
 		}
 	}
-	strcpy(estado->ataques_utilizados[turno], nombre);
+	if (turno < 9) {
+		strcpy(estado->ataques_utilizados[turno], nombre);
+		return true;
+		}
+	*/
 	return true;
 }
 
 jugada_t seleccionar_jugada (void * e,int turno){
-	struct estado_juego *estado = e;
+	//struct estado_juego *estado = e;
 	int validacion = false;
 	jugada_t jugada_jugador = { .pokemon = "nada", .ataque = "nada" };
 	while (validacion == false){
-		printf("\nEl turno de estado es : %d\n",turno);
 		char nombre_1[20],nombre_2[20];
 		printf("Jugador ingresa el nombre del pokemon:\n");
 		fgets(nombre_1, 20, stdin);
@@ -141,10 +137,100 @@ jugada_t seleccionar_jugada (void * e,int turno){
 		nombre_2[strlen(nombre_2) - 1] = '\0';
 		strcpy(jugada_jugador.pokemon,nombre_1);
 		strcpy(jugada_jugador.ataque,nombre_2);
-		validacion = validar_repetido(estado,turno,nombre_2);
+		//validacion = validar_repetido(estado,turno,nombre_2);
+		validacion = true;
 	}
 	return jugada_jugador;
 }
+
+void mostrar_ganador(int puntos_jugador, int puntos_adversario){
+	printf("\nEL juego a finalizado!\n");
+	printf("\nEstos son los puntos de cada uno de los jugadores :\n");
+	printf("\nEl Jugador numero 1 ha conseguido : %d puntos!\n",puntos_jugador);
+	printf("\nEl Jugador numero 2 ha conseguido : %d puntos!\n",puntos_adversario);
+	if(puntos_jugador > puntos_adversario){
+		printf("\nEl ganador es el Jugador numero 1 .Felicidades!\n");
+	}else if (puntos_adversario > puntos_jugador)
+	{
+		printf("\nEl ganador es el Jugador numero 2 .Felicidades!\n");
+	}else{
+		printf("\nLa partida a finalizado en un empate!!!\n");
+	}
+}
+
+void mostrar_efectividad_ataque(resultado_jugada_t resultado){
+	if(resultado.jugador1 == ATAQUE_EFECTIVO){
+		printf("\nEL ataque del Jugador 1 a sido Efectivo!!\n");
+	}else if(resultado.jugador1 == ATAQUE_INEFECTIVO){
+		printf("\nEL ataque del Jugador 1 a sido Inefectivo!!\n");
+	}else if(resultado.jugador1 == ATAQUE_REGULAR){
+		printf("\nEL ataque del Jugador 1 a sido Normal!!\n");
+	}
+	if(resultado.jugador2 == ATAQUE_EFECTIVO){
+		printf("\nEL ataque del Jugador 2 a sido Efectivo!!\n");
+	}else if(resultado.jugador2 == ATAQUE_INEFECTIVO){
+		printf("\nEL ataque del Jugador 2 a sido Inefectivo!!\n");
+	}else if(resultado.jugador2 == ATAQUE_REGULAR){
+		printf("\nEL ataque del Jugador 2 a sido Normal!!\n");
+	}
+	
+}
+
+int compar_noms(void *pokemon, void *nombre) {
+    pokemon_t* aux_pokemon = (pokemon_t*)pokemon;
+    const char *nombre_pokemon = (const char *)nombre;
+    
+    const char *nombre_aux_pokemon = pokemon_nombre(aux_pokemon);
+    
+    if (nombre_aux_pokemon != NULL && nombre_pokemon != NULL) {
+        if (strcmp(nombre_aux_pokemon, nombre_pokemon) == 0) {
+            return 0;
+        }
+    }
+    
+    return -1;
+}
+
+void guardar_pokemones_jugador(void *e ,char nombre_1[], char nombre_2[], char nombre_3[]){
+	if (!e){
+		return;
+	}
+	struct estado_juego *estado = e;
+	if(!estado){
+		return;
+	}
+	pokemon_t* pokemon_1 = lista_buscar_elemento(juego_listar_pokemon(estado->juego),compar_noms,(void *)nombre_1);
+	pokemon_t* pokemon_2 = lista_buscar_elemento(juego_listar_pokemon(estado->juego),compar_noms,(void *)nombre_2);
+	pokemon_t* pokemon_3 = lista_buscar_elemento(juego_listar_pokemon(estado->juego),compar_noms,(void *)nombre_3);
+	estado->pokemon_jugador[0] = pokemon_1;
+	estado->pokemon_jugador[1] = pokemon_2;
+	estado->pokemon_jugador[2] = pokemon_3;
+}
+
+void mostra_ataque(const struct ataque *a, void *aux)
+{
+	printf("%s: %i\n", a->nombre, a->poder);
+}
+
+
+bool mostrar_ataques_pokemon(void * e){
+	if (!e){
+		return false;
+	}
+	struct estado_juego *estado = e;
+	if(!estado){
+		return false;
+	}
+	printf("\n Asi se a quedado conformado tu equipo pokemon : \n");
+	printf("\nEl pokemon numero 1 es %s y sus ataques son : \n",pokemon_nombre(estado->pokemon_jugador[0]));
+	con_cada_ataque(estado->pokemon_jugador[0],mostra_ataque,NULL);
+	printf("\nEl pokemon numero 2 es %s y sus ataques son : \n",pokemon_nombre(estado->pokemon_jugador[1]));
+	con_cada_ataque(estado->pokemon_jugador[1],mostra_ataque,NULL);
+	printf("\nEl pokemon numero 3 es %s y sus ataques son : \n",pokemon_nombre(estado->pokemon_jugador[2]));
+	con_cada_ataque(estado->pokemon_jugador[2],mostra_ataque,NULL);
+	return true;
+}
+
 
 bool jugar(void * e){
 	
@@ -173,16 +259,28 @@ bool jugar(void * e){
 	char *eleccionAdversario1, *eleccionAdversario2, *eleccionAdversario3;
 	adversario_seleccionar_pokemon(adversario,&eleccionAdversario1,&eleccionAdversario2,&eleccionAdversario3);
 	juego_seleccionar_pokemon(estado->juego,JUGADOR2,eleccionAdversario1,eleccionAdversario2,eleccionAdversario3);
-	printf("\nPerfecto que comienze el juego!\n");
 	int turno = 0;
+	resultado_jugada_t resultado = {.jugador1 = ATAQUE_ERROR};
+	guardar_pokemones_jugador(estado,nombre_1,nombre_2,eleccionAdversario3);
+	mostrar_ataques_pokemon(estado);
+	printf("\nPerfecto que comienze el juego!\n");
 	while(!juego_finalizado(estado->juego)){
 		jugada_t jugada_jugador_1 ;
 		jugada_t jugada_jugador_2;
 		jugada_jugador_1 = seleccionar_jugada(estado->juego,turno);
 		jugada_jugador_2 = adversario_proxima_jugada(adversario);
-		juego_jugar_turno(estado->juego,jugada_jugador_1,jugada_jugador_2);
-		turno ++;
+		resultado = juego_jugar_turno(estado->juego,jugada_jugador_1,jugada_jugador_2);
+		if(resultado.jugador1 == ATAQUE_ERROR){
+			printf("\nHas escrito un pokemon o un ataque incorrectamente\n");
+		}else{
+			turno ++;
+		}
+		mostrar_efectividad_ataque(resultado);
+		juego_finalizado(estado->juego);
 	}
+	int puntos_jugador = juego_obtener_puntaje(estado->juego,JUGADOR1);
+	int puntos_adversario = juego_obtener_puntaje(estado->juego,JUGADOR2);
+	mostrar_ganador(puntos_jugador,puntos_adversario);
 	return true;
 }
 
@@ -201,8 +299,7 @@ bool mostrar_comandos(){
     printf("\t|| [c] Cargar un archivo                             ||\n");
     printf("\t|| [l] Listar pokemones Disponibles                  ||\n");
     printf("\t|| [j] Jugar                                         ||\n");
-    printf("\t|| [m] Mostrar ataques de pokemon                    ||\n");
-    printf("\t|| [t] Mostrar tipo de pokemon                       ||\n");
+    printf("\t|| [m] Mostrar info ataques de pokemon               ||\n");
     printf("\t|| [q] Finalizar juego                               ||\n");
     printf("\t||~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~||\n");
     printf("\n");
@@ -235,7 +332,6 @@ int main(int argc, char *argv[])
 	menu_agregar_comando(menu,"v","Ver comandos",mostrar_comandos);
 	menu_agregar_comando(menu,"l","Listar pokemones",listar_pokemones);
 	menu_agregar_comando(menu,"c","Cargar un archivo",cargar_archivo);
-	menu_agregar_comando(menu,"t","Mostrar tipo de pokemon",mostrar_tipo_pokemon);
 	menu_agregar_comando(menu,"m","Mostrar ataque pokemon",mostrar_ataques_pokemon);
 	menu_agregar_comando(menu,"j","Iniciar la partida",jugar);
 	menu_agregar_comando(menu,"q","Finalizar juego",finalizar_juego);
