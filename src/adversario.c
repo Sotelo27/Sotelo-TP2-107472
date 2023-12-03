@@ -177,4 +177,9 @@ void adversario_informar_jugada(adversario_t *a, jugada_t j)
 
 void adversario_destruir(adversario_t *adversario)
 {
+	lista_destruir(adversario->ataques_posibles);
+	lista_destruir(adversario->lista_pokemon);
+	lista_destruir(adversario->pokemones_jugador);
+	lista_destruir(adversario->pokemones_adversario);
+	free(adversario);
 }

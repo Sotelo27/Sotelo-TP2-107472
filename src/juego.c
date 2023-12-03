@@ -31,10 +31,15 @@ juego_t *juego_crear()
 		return NULL;
 	}
 	juego->lista_pokemon = NULL;
+	juego->jugador_1.pokemones = NULL;
+	juego->jugador_2.pokemones = NULL;
 	juego->estado_juego = false;
 	juego->turnos = 0;
 	juego->jugador_1.puntos = 0;
 	juego->jugador_2.puntos = 0;
+	for (int i = 0; i < 9; i++) {
+		strcpy(juego->jugador_1.ataques_utilizados[i], "");
+		}
 	return juego;
 }
 
@@ -205,12 +210,15 @@ bool mostra_pokemon(void *p, void *contexto)
 resultado_jugada_t juego_jugar_turno(juego_t *juego, jugada_t jugada_jugador1,
 				     jugada_t jugada_jugador2)
 {
-	if (juego->turnos == 0) {
-		juego->jugador_1.puntos = 0;
-	}
 	resultado_jugada_t resultado;
 	resultado.jugador1 = ATAQUE_ERROR;
 	resultado.jugador2 = ATAQUE_ERROR;
+	if (juego->turnos == 0) {
+		juego->jugador_1.puntos = 0;
+	}
+	if(!juego){
+		return resultado;
+	}
 	pokemon_t *pokemon_jugador_1 =
 		lista_buscar_elemento(juego->jugador_1.pokemones, comparador,
 				      (void *)jugada_jugador1.pokemon);
@@ -232,6 +240,7 @@ resultado_jugada_t juego_jugar_turno(juego_t *juego, jugada_t jugada_jugador1,
 		resultado.jugador1 = ATAQUE_ERROR;
 		return resultado;
 	}
+	/*
 	for (int i = 0; i < 9; i++) {
 		if (strcmp(ataque_nombre_1,
 			   juego->jugador_1.ataques_utilizados[i]) == 0) {
@@ -241,6 +250,22 @@ resultado_jugada_t juego_jugar_turno(juego_t *juego, jugada_t jugada_jugador1,
 			strcpy(juego->jugador_1.ataques_utilizados[i],
 			       ataque_nombre_1);
 		}
+	}
+	*/
+	bool ataque_ya_utilizado = false;
+	for (int i = 0; i < 9; i++) {
+	if (strcmp(ataque_nombre_1, juego->jugador_1.ataques_utilizados[i]) == 0) {
+		ataque_ya_utilizado = true;
+		break; // Si el ataque ya fue utilizado, detenemos la búsqueda
+	}
+	}
+
+	if (ataque_ya_utilizado) {
+	resultado.jugador1 = ATAQUE_ERROR;
+	return resultado;
+	} else {
+	// Guardar el ataque solo si no ha sido utilizado previamente
+	strcpy(juego->jugador_1.ataques_utilizados[juego->turnos], ataque_nombre_1);
 	}
 	char *ataque_nombre_2 = jugada_jugador2.ataque;
 	const struct ataque *ataque_jugador_2 =
@@ -280,7 +305,9 @@ bool juego_finalizado(juego_t *juego)
 }
 
 void juego_destruir(juego_t *juego)
-{
+{	
+	lista_destruir(juego->jugador_1.pokemones);
+	lista_destruir(juego->jugador_2.pokemones);
 	lista_destruir(juego->lista_pokemon);
 	free(juego);
 }
