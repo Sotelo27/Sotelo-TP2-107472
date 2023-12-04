@@ -12,7 +12,7 @@ struct adversario {
 	lista_t *pokemones_jugador;
 	lista_t *pokemones_adversario;
 	lista_t *ataques_posibles;
-	jugada_t jugadas_posibles[9];
+	jugada_t jugadas_posibles[10];
 	int turnos;
 };
 
@@ -26,7 +26,8 @@ adversario_t *adversario_crear(lista_t *pokemon)
 	adversario->pokemones_adversario = NULL;
 	adversario->ataques_posibles = NULL;
 	adversario->pokemones_jugador = NULL;
-	for (int i = 0; i < 9; i++) {
+	adversario->turnos = 0;
+	for (int i = 0; i < 10; i++) {
 		strcpy(adversario->jugadas_posibles->pokemon, "");
 		strcpy(adversario->jugadas_posibles->ataque, "");
 	}
@@ -179,6 +180,7 @@ jugada_t adversario_proxima_jugada(adversario_t *adversario)
 	strcpy(jugada_adversario.ataque,
 	       adversario->jugadas_posibles[adversario->turnos].ataque);
 	adversario->turnos++;
+	printf("\nEste es el turno%d\n", adversario->turnos);
 	return jugada_adversario;
 }
 void adversario_informar_jugada(adversario_t *a, jugada_t j)
