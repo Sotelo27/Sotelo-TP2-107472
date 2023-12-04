@@ -137,12 +137,11 @@ void insertar_ataques(const struct ataque *ataque, void *lista_ataques_posibles)
 	lista_insertar(lista_ataques_posibles, ataque_nombre);
 }
 
-jugada_t adversario_proxima_jugada(adversario_t *adversario)
+//FUNCION LAUTARO MARTIN SOTELO
+//PRE: RECIBE EL ADVERSARIO CREADO
+//POST : ASIGNA AL ADVERSARIO LOS POSIBLES ATAQUES QUE PUEDE HACER.
+void crear_ataques_posibles(adversario_t *adversario)
 {
-	jugada_t jugada_adversario = { .ataque = "", .pokemon = "" };
-	if (!adversario) {
-		return jugada_adversario;
-	}
 	if (!adversario->ataques_posibles) {
 		adversario->ataques_posibles = lista_crear();
 		for (size_t i = 0; i < 3; i++) {
@@ -175,6 +174,15 @@ jugada_t adversario_proxima_jugada(adversario_t *adversario)
 			}
 		}
 	}
+}
+
+jugada_t adversario_proxima_jugada(adversario_t *adversario)
+{
+	jugada_t jugada_adversario = { .ataque = "", .pokemon = "" };
+	if (!adversario) {
+		return jugada_adversario;
+	}
+	crear_ataques_posibles(adversario);
 	strcpy(jugada_adversario.pokemon,
 	       adversario->jugadas_posibles[adversario->turnos].pokemon);
 	strcpy(jugada_adversario.ataque,

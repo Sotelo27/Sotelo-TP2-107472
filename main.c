@@ -302,6 +302,38 @@ void mostrar_equipos_pokemon(void *e)
 				mostrar_datos_equipo, NULL);
 }
 
+//FUNCION DE LAUTARO MARTIN SOTELO
+//SE ENCARGA DE RELLENAR LOS DATOS DE LOS JUGADORES EN LA PARTIDA.
+void datos_jugadores(adversario_t *adversario, void *e)
+{
+	struct estado_juego *estado = e;
+	printf("\n---------!Juego iniciado--------\n");
+	printf("\n----------Selecciona los pokemon para continuar, a continuacion ingresa el comando------------\n");
+	char nombre_1[20], nombre_2[20], nombre_3[20];
+	JUEGO_ESTADO estado_seleccion = ERROR_GENERAL;
+	while (estado_seleccion != TODO_OK) {
+		ingresar_nombres(nombre_1, nombre_2, nombre_3);
+		estado_seleccion = juego_seleccionar_pokemon(
+			estado->juego, JUGADOR1, nombre_1, nombre_2, nombre_3);
+		mostrar_error_seleccion(estado_seleccion);
+	}
+	adversario_pokemon_seleccionado(adversario, nombre_1, nombre_2,
+					nombre_3);
+	char *eleccionAdversario1, *eleccionAdversario2, *eleccionAdversario3;
+	adversario_seleccionar_pokemon(adversario, &eleccionAdversario1,
+				       &eleccionAdversario2,
+				       &eleccionAdversario3);
+	juego_seleccionar_pokemon(estado->juego, JUGADOR2, eleccionAdversario1,
+				  eleccionAdversario2, eleccionAdversario3);
+	estado->pokemon_jugador = guardar_pokemones_jugador(
+		estado, estado->pokemon_jugador, nombre_1, nombre_2,
+		eleccionAdversario3);
+	estado->pokemon_adversario = guardar_pokemones_jugador(
+		estado, estado->pokemon_adversario, eleccionAdversario1,
+		eleccionAdversario2, nombre_3);
+	mostrar_equipos_pokemon(estado);
+}
+
 //FUNCION LAUTARO MARTIN SOTELO
 //PRE : RECIBE UN VOID * E QUE REPRESENTA EL ESTADO.
 //POST: EJECUTA EL JUEGO , PIDE AL USUARIO SUS POKEMON Y A LO LARGO DE 9 TURNOS PIDE LAS JUGADAS QUE DECIDE REALIZAR.
@@ -318,35 +350,11 @@ bool jugar(void *e)
 		printf("\nNo se a cargado ningun archivo, cargue un archivo para jugar\n");
 		return true;
 	}
-	printf("\n---------!Juego iniciado--------\n");
-	printf("\n----------Selecciona los pokemon para continuar, a continuacion ingresa el comando------------\n");
-	char nombre_1[20], nombre_2[20], nombre_3[20];
-	JUEGO_ESTADO estado_seleccion = ERROR_GENERAL;
 	adversario_t *adversario =
 		adversario_crear(juego_listar_pokemon(estado->juego));
-	while (estado_seleccion != TODO_OK) {
-		ingresar_nombres(nombre_1, nombre_2, nombre_3);
-		estado_seleccion = juego_seleccionar_pokemon(
-			estado->juego, JUGADOR1, nombre_1, nombre_2, nombre_3);
-		mostrar_error_seleccion(estado_seleccion);
-	}
-	adversario_pokemon_seleccionado(adversario, nombre_1, nombre_2,
-					nombre_3);
-	char *eleccionAdversario1, *eleccionAdversario2, *eleccionAdversario3;
-	adversario_seleccionar_pokemon(adversario, &eleccionAdversario1,
-				       &eleccionAdversario2,
-				       &eleccionAdversario3);
-	juego_seleccionar_pokemon(estado->juego, JUGADOR2, eleccionAdversario1,
-				  eleccionAdversario2, eleccionAdversario3);
-	int turno = 0;
 	resultado_jugada_t resultado = { .jugador1 = ATAQUE_ERROR };
-	estado->pokemon_jugador = guardar_pokemones_jugador(
-		estado, estado->pokemon_jugador, nombre_1, nombre_2,
-		eleccionAdversario3);
-	estado->pokemon_adversario = guardar_pokemones_jugador(
-		estado, estado->pokemon_adversario, eleccionAdversario1,
-		eleccionAdversario2, nombre_3);
-	mostrar_equipos_pokemon(estado);
+	int turno = 0;
+	datos_jugadores(adversario, estado);
 	printf("\nPerfecto que comienze el juego!\n");
 	while (!juego_finalizado(estado->juego)) {
 		jugada_t jugada_jugador_1;

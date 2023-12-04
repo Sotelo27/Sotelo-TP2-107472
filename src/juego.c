@@ -134,10 +134,38 @@ void juego_reasignar_pokemon(juego_t *juego)
 	lista_insertar_en_posicion(juego->jugador_2.pokemones, aux_pokemon, 2);
 }
 
+//FUNCION LAUTARO MARTIN SOTELO
+//PRE: RECIBE EL JUEGO , EL JUGADOR Y LA LISTA DE POKEMONES
+//POST: SE LE ASIGNA LA LISTA DE POKEMONES AL JUGADOR DETERMINADO, RETORNA SI HUBO ERROR O NO.
+JUEGO_ESTADO asignar_pokemones_jugador(juego_t *juego, JUGADOR jugador,
+				       lista_t *pokemones)
+{
+	if (jugador == JUGADOR1) {
+		juego->jugador_1.pokemones = pokemones;
+		if (!juego->jugador_1.pokemones) {
+			lista_destruir(juego->jugador_1.pokemones);
+			lista_destruir(pokemones);
+			return ERROR_GENERAL;
+		}
+		juego->jugador_1.pokemones = pokemones;
+	} else if (jugador == JUGADOR2) {
+		juego->jugador_2.pokemones = pokemones;
+		if (!juego->jugador_1.pokemones) {
+			lista_destruir(juego->jugador_2.pokemones);
+			lista_destruir(pokemones);
+			return ERROR_GENERAL;
+		}
+		juego->jugador_2.pokemones = pokemones;
+		juego_reasignar_pokemon(juego);
+	}
+	return TODO_OK;
+}
+
 JUEGO_ESTADO juego_seleccionar_pokemon(juego_t *juego, JUGADOR jugador,
 				       const char *nombre1, const char *nombre2,
 				       const char *nombre3)
 {
+	JUEGO_ESTADO asignacion_pokemon;
 	if (juego == NULL || nombre1 == NULL || nombre2 == NULL ||
 	    nombre3 == NULL) {
 		return ERROR_GENERAL;
@@ -165,25 +193,9 @@ JUEGO_ESTADO juego_seleccionar_pokemon(juego_t *juego, JUGADOR jugador,
 	lista_insertar(pokemones, pokemon_1);
 	lista_insertar(pokemones, pokemon_2);
 	lista_insertar(pokemones, pokemon_3);
-	if (jugador == JUGADOR1) {
-		juego->jugador_1.pokemones = pokemones;
-		if (!juego->jugador_1.pokemones) {
-			lista_destruir(juego->jugador_1.pokemones);
-			lista_destruir(pokemones);
-			return ERROR_GENERAL;
-		}
-		juego->jugador_1.pokemones = pokemones;
-	} else if (jugador == JUGADOR2) {
-		juego->jugador_2.pokemones = pokemones;
-		if (!juego->jugador_1.pokemones) {
-			lista_destruir(juego->jugador_2.pokemones);
-			lista_destruir(pokemones);
-			return ERROR_GENERAL;
-		}
-		juego->jugador_2.pokemones = pokemones;
-		juego_reasignar_pokemon(juego);
-	}
-	return TODO_OK;
+	asignacion_pokemon =
+		asignar_pokemones_jugador(juego, jugador, pokemones);
+	return asignacion_pokemon;
 }
 
 // FUNCION LAUTARO MARITN SOTELO
