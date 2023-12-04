@@ -94,7 +94,9 @@ lista_t *juego_listar_pokemon(juego_t *juego)
 	return juego->lista_pokemon;
 }
 
-//comparador de nombres
+//FUNCION LAUTARO MARTIN SOTELO
+//PRE: RECIBE EL POKEMON Y UN NOMBRE
+//POST: EVALUA SI SON IGUALES O NO SUS NOMBRES.
 int comparador(void *pokemon, void *nombre)
 {
 	if (!pokemon || !nombre) {
@@ -114,6 +116,9 @@ int comparador(void *pokemon, void *nombre)
 	return -1;
 }
 
+//FUNCION LAUTARO MARTIN SOTELO
+//PRE: RECIBE EL JUEGO Y SUS DATOS.
+//POST: REACOMODA LA LISTA POKEMON DE CADA JUGADOR, ASIGNANDOLE A CADA UNO EL POKEMON QUE LE ELIGIO EL JUGADOR RIVAL.
 void juego_reasignar_pokemon(juego_t *juego)
 {
 	if (!juego) {
@@ -182,6 +187,8 @@ JUEGO_ESTADO juego_seleccionar_pokemon(juego_t *juego, JUGADOR jugador,
 }
 
 // FUNCION LAUTARO MARITN SOTELO
+//PRE: RECIBE EL POKEMON Y EL ATAQUE QUE RECIBE
+//POST: EVALUA SI ES UN ATAQUE EFECTIVO, INEFECTIVO O REGULAR SEGUN LO INDICADO.
 RESULTADO_ATAQUE comprobar_eficacia_ataque(pokemon_t *pokemon,
 					   const struct ataque *ataque_1)
 {
@@ -214,6 +221,9 @@ RESULTADO_ATAQUE comprobar_eficacia_ataque(pokemon_t *pokemon,
 	return ataque_eficacia;
 }
 
+//FUNCION DE LAUTARO MARTIN SOTELO:
+//PRE : RECIBE EL RESULTADO DEL ATAQUE, Y EL ATAQUE DEL JUGADOR
+//POST EVALUA DE ACUERDO A LOS ENUMS SI FUE EFECTIVO Y NO, DEVUELVE LOS PUNTOS SEGUN CORRESPONDA.
 int calcular_puntos(RESULTADO_ATAQUE resultado_ataque,
 		    const struct ataque *ataque_jugador)
 {
@@ -230,15 +240,6 @@ int calcular_puntos(RESULTADO_ATAQUE resultado_ataque,
 		puntos = (int)ataque_jugador->poder;
 	}
 	return puntos;
-}
-
-bool mostra_pokemon(void *p, void *contexto)
-{
-	if (!p) {
-		return false;
-	}
-	printf("Nombre: %s\n", pokemon_nombre(p));
-	return true;
 }
 
 resultado_jugada_t juego_jugar_turno(juego_t *juego, jugada_t jugada_jugador1,

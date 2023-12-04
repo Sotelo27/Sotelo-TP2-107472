@@ -33,7 +33,9 @@ adversario_t *adversario_crear(lista_t *pokemon)
 	return adversario;
 }
 
-//comparador de nombres
+//FUNCION LAUTARO MARTIN SOTELO
+//PRE: RECIBE EL POKEMON Y UN NOMBRE
+//POST: EVALUA SI SON IGUALES O NO SUS NOMBRES.
 int comparar_nombres(void *pokemon, void *nombre)
 {
 	pokemon_t *aux_pokemon = (pokemon_t *)pokemon;
@@ -125,6 +127,9 @@ bool adversario_pokemon_seleccionado(adversario_t *adversario, char *nombre1,
 	return true;
 }
 
+//FUNCION LAUTARO MARTIN SOTELO
+//PRE: RECIBE UN STRUCT ATAQUE Y LA LISTA DE ATAQUES QUE SE PUEDEN REALIZAR.
+//POST: CONSIGUE EL NOMBRE DEL ATAQUE Y LO INSERTA EN LA LISTA DE LOS ATAQUES QUE SE PUEDEN REALIZAR.
 void insertar_ataques(const struct ataque *ataque, void *lista_ataques_posibles)
 {
 	char *ataque_nombre = (char *)ataque->nombre;

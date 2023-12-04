@@ -19,12 +19,17 @@ struct estado_juego {
 	bool archivo_cargado;
 };
 
+//FUNCION LAUTARO MARTIN SOTELO
+//FUNCION AUXILIAR QUE SE ENCARGA DE MOSTRAR EL NOMBRE DE POKEMON.
 bool mostrar_pokemon(void *p, void *contexto)
 {
 	printf("Nombre: %s\n", pokemon_nombre(p));
 	return true;
 }
 
+//FUNCION LAUTARO MARTIN SOTELO
+//PRE: RECIBE EL STRUCT ESTADO DE PARTIDA EN VOID
+//POST : CARGA EL ARCHIVO DE POKEMONES,Y OBTIENE LOS DATOS DEL MISMO.INFORMA SI EL ARCHIVO SELECCIONADO DA ERROR.
 bool cargar_archivo(void *e)
 {
 	if (!e) {
@@ -67,6 +72,9 @@ bool cargar_archivo(void *e)
 	return true;
 }
 
+//FUNCION LAUTARO MARITN SOTELO
+//PRE: RECIBE EL ESTADO DE PARTIDA.
+//POST: MUESTRA POR PANTALLA CADA UNO DE LOS POKEMONES.
 bool listar_pokemones(void *e)
 {
 	if (!e) {
@@ -85,6 +93,8 @@ bool listar_pokemones(void *e)
 	return true;
 }
 
+//FUNCION LAUTARO MARTIN SOTELO
+//RECIBE LOS CHAR NOMBRE Y SE ENCARGA DE DARLE EL VALOR QUE EL USUARIO LE DESEE INGRESAR.
 void ingresar_nombres(char nombre_1[], char nombre_2[], char nombre_3[])
 {
 	printf("Jugador ingresa el primer pokemon:\n");
@@ -100,6 +110,8 @@ void ingresar_nombres(char nombre_1[], char nombre_2[], char nombre_3[])
 	nombre_3[strlen(nombre_3) - 1] = '\0';
 }
 
+//FUNCINO LAUTARO MARTIN SOTELO
+//RECIBE EL ESTADO DE JUEGO Y MUESTRA POR PANTALLA SEGUN CORRESPONDA SI FUE CORRECTO O NO LA SELECCION.
 void mostrar_error_seleccion(JUEGO_ESTADO estado_seleccion)
 {
 	if (estado_seleccion == POKEMON_INEXISTENTE) {
@@ -113,7 +125,10 @@ void mostrar_error_seleccion(JUEGO_ESTADO estado_seleccion)
 	}
 }
 
-jugada_t seleccionar_jugada(void *e, int turno)
+//FUNCION LAUTARO MARTIN SOTELO
+//PRE: RECIBE EL ESTADO DE PARTIDA Y EL TURNO
+//POST: RETORNA UNA JUGADA T, PIDIENDOLE AL USUARIO QUE INGRESE LOS DATOS DEL ATAQUE QUE DESEA HACER.
+jugada_t seleccionar_jugada()
 {
 	jugada_t jugada_jugador = { .pokemon = "nada", .ataque = "nada" };
 	char nombre_1[20], nombre_2[20];
@@ -128,6 +143,9 @@ jugada_t seleccionar_jugada(void *e, int turno)
 	return jugada_jugador;
 }
 
+//FUNCION LAUTARO MARTIN SOTELO
+//PRE: RECIBE UN INT DE PUNTOS USUARIO Y UN INT PUNTOS DE ADVERSARIO
+//POST: PRINTEA LOS PUNTOS DE CADA JUGADOR.
 void mostrar_ganador(int puntos_jugador, int puntos_adversario)
 {
 	printf("\nEL juego a finalizado!\n");
@@ -145,6 +163,8 @@ void mostrar_ganador(int puntos_jugador, int puntos_adversario)
 	}
 }
 
+//FUNCION LAUTARO MARTIN SOTELO
+//RECIBE EL RESULTADO, Y EVALUANDO EL RESULTADO DE CADA JUGADOR MOSTRARA UN PRINTF .
 void mostrar_efectividad_ataque(resultado_jugada_t resultado)
 {
 	if (resultado.jugador1 == ATAQUE_EFECTIVO) {
@@ -163,6 +183,9 @@ void mostrar_efectividad_ataque(resultado_jugada_t resultado)
 	}
 }
 
+//FUNCION LAUTARO MARTIN SOTELO
+//PRE: RECIBE EL POKEMON Y UN NOMBRE
+//POST: EVALUA SI SON IGUALES O NO SUS NOMBRES.
 int comparar_nombre_pokemon(void *pokemon, void *nombre)
 {
 	pokemon_t *aux_pokemon = (pokemon_t *)pokemon;
@@ -179,6 +202,9 @@ int comparar_nombre_pokemon(void *pokemon, void *nombre)
 	return -1;
 }
 
+//FUNCION LAUTARO MARTIN SOTELO.
+//PRE : RECIBE LA LISTA DE POKEMON, Y LOS NOMBRES QUE ELIGIO EL USUARIO MAS EL ESTADO DE PARTIDA.
+//POST: BUSCA SI LOS NOMBRES EXISTEN EN LA LISTA DE POKEMON DE LA PARTIDA, Y LO INSERTA EN UNA LISTA DE POKEMONES.
 lista_t *guardar_pokemones_jugador(void *e, lista_t *lista, char nombre_1[],
 				   char nombre_2[], const char *nombre_3)
 {
@@ -205,6 +231,9 @@ lista_t *guardar_pokemones_jugador(void *e, lista_t *lista, char nombre_1[],
 	return lista_con_pokemones;
 }
 
+//FUNCION LAUTARO MARTIN SOTELO
+//PRE: RECIBE UN TIPO DE POKEMON.
+//POST: RETORNA UN CHAR QUE REPRESENTA SU TIPO.
 char *conseguir_tipo(enum TIPO tipo_pokemon)
 {
 	switch (tipo_pokemon) {
@@ -229,6 +258,9 @@ char *conseguir_tipo(enum TIPO tipo_pokemon)
 	return NULL;
 }
 
+//FUNCION LAUTARO MARTIN SOTELO
+//PRE: RECIBE UN ATAQUE Y UN AUX.
+//POST: PRINTEA LOS DATOS DEL ATAQUE.
 void mostrar_datos_ataque(const struct ataque *a, void *aux)
 {
 	printf("┌─────────────────────┬───────────┬─────────┐\n");
@@ -239,6 +271,9 @@ void mostrar_datos_ataque(const struct ataque *a, void *aux)
 	printf("└─────────────────────┴───────────┴─────────┘\n");
 }
 
+//FUNCION LAUTARO MARTIN SOTELO
+//PRE : RECIBE UN VOID *P Y UN CONTEXTO.
+//POST : MUESTRA EL NOMBRE DEL POKEMON Y SU TIPO.
 bool mostrar_datos_equipo(void *p, void *contexto)
 {
 	printf("\nEl pokemon numero 1 es %s de tipo %s y sus ataques son : \n",
@@ -247,6 +282,9 @@ bool mostrar_datos_equipo(void *p, void *contexto)
 	return true;
 }
 
+//FUNCION LAUTARO MARTIN SOTELO
+//PRE:RECIBE UN VOID *E QUE REPRESENTA EL ESTADO DE PARTIDA.
+//POST: CON LA FUNCION LISTA_CON_CADA_ELEMENTO CONSIGUIE LOS ELEMENTOS DE CADA LISTA DE POKEMON DE CADA JUGADOR, SIENDO POKEMON_T PARA MOSTRARLOS
 void mostrar_equipos_pokemon(void *e)
 {
 	if (!e) {
@@ -264,6 +302,9 @@ void mostrar_equipos_pokemon(void *e)
 				mostrar_datos_equipo, NULL);
 }
 
+//FUNCION LAUTARO MARTIN SOTELO
+//PRE : RECIBE UN VOID * E QUE REPRESENTA EL ESTADO.
+//POST: EJECUTA EL JUEGO , PIDE AL USUARIO SUS POKEMON Y A LO LARGO DE 9 TURNOS PIDE LAS JUGADAS QUE DECIDE REALIZAR.
 bool jugar(void *e)
 {
 	if (!e) {
@@ -310,7 +351,7 @@ bool jugar(void *e)
 	while (!juego_finalizado(estado->juego)) {
 		jugada_t jugada_jugador_1;
 		jugada_t jugada_jugador_2;
-		jugada_jugador_1 = seleccionar_jugada(estado->juego, turno);
+		jugada_jugador_1 = seleccionar_jugada();
 		jugada_jugador_2 = adversario_proxima_jugada(adversario);
 		resultado = juego_jugar_turno(estado->juego, jugada_jugador_1,
 					      jugada_jugador_2);
@@ -338,6 +379,9 @@ bool jugar(void *e)
 	return true;
 }
 
+//FUNCION LAUTARO MARTIN SOTELO
+//PRE: RECIBE UN VOID QUE REFERENCIA AL ESTADO
+//POST : CAMBIA EL VALOR BOLEANO DE CONTINUAR PARA FINALIZAR EL JUEGO.
 bool finalizar_juego(void *e)
 {
 	struct estado_juego *estado = e;
@@ -345,6 +389,8 @@ bool finalizar_juego(void *e)
 	return true;
 }
 
+//FUNCION LAUTARO MARTIN SOTELO
+//SE ENCARGA DE PRINTEAR LOS COMANDOS QUE EL USUARIO PUEDE REALIZAR
 bool mostrar_comandos()
 {
 	printf("\n");
@@ -360,6 +406,8 @@ bool mostrar_comandos()
 	return true;
 }
 
+//FUNCION LAUTARO MARTIN SOTELO
+//FUNCION QUE SE ENCARGA DE MOSTRAR AL USUARIO LOS TIPOS Y LA TABLA DE EFECTIVIDADES.
 bool mostrar_tabla_tipos(void *e)
 {
 	if (!e) {
@@ -403,6 +451,8 @@ bool mostrar_tabla_tipos(void *e)
 	return true;
 }
 
+//FUNCION LAUTARO MARTIN SOTELO
+//FUNCION QUE  SE ENCARGA CON PRINTF DE MOSTRAR LAS REGLAS DEL JUEGO AL JUGADOR.
 void motrar_reglas()
 {
 	printf("\n------------ Bienvenido al juego de pokemon! -------------------\n");
@@ -421,6 +471,7 @@ void motrar_reglas()
 	printf("\n");
 }
 
+//MAIN
 int main(int argc, char *argv[])
 {
 	struct estado_juego estado = { .continuar = true,
@@ -451,7 +502,7 @@ int main(int argc, char *argv[])
 			printf("Hubo un error al ejecutar el menu, reintente nuevamente.\n");
 		}
 	}
-	if (estado.juego) {
+	if (estado.archivo_cargado == true) {
 		juego_destruir(estado.juego);
 	}
 	menu_destruir(menu);
