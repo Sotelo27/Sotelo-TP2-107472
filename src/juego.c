@@ -292,6 +292,7 @@ resultado_jugada_t juego_jugar_turno(juego_t *juego, jugada_t jugada_jugador1,
 		if (strcmp(ataque_nombre_1,
 			   juego->jugador_1.ataques_utilizados[i]) == 0) {
 			ataque_ya_utilizado = true;
+			break;
 		}
 	}
 

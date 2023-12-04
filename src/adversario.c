@@ -188,7 +188,6 @@ jugada_t adversario_proxima_jugada(adversario_t *adversario)
 	strcpy(jugada_adversario.ataque,
 	       adversario->jugadas_posibles[adversario->turnos].ataque);
 	adversario->turnos++;
-	printf("\nEste es el turno%d\n", adversario->turnos);
 	return jugada_adversario;
 }
 void adversario_informar_jugada(adversario_t *a, jugada_t j)
