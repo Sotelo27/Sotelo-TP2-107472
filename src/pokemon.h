@@ -5,7 +5,6 @@
 typedef struct pokemon pokemon_t;
 typedef struct info_pokemon informacion_pokemon_t;
 
-
 /**
  * Lee un archivo con pokemones (con el formato especificado en el enunciado) y
  * devuelve un puntero a la información leida.

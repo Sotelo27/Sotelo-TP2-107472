@@ -369,7 +369,7 @@ bool mostrar_tabla_tipos(void *e)
 	if (!estado) {
 		return false;
 	}
-	
+
 	printf("╔══════════════════════╗\n");
 	printf("║ Tipos de Pokémon:    ║\n");
 	printf("╠══════════════════════╣\n");
@@ -451,7 +451,7 @@ int main(int argc, char *argv[])
 			printf("Hubo un error al ejecutar el menu, reintente nuevamente.\n");
 		}
 	}
-	if(estado.juego){
+	if (estado.juego) {
 		juego_destruir(estado.juego);
 	}
 	menu_destruir(menu);

@@ -328,7 +328,7 @@ bool juego_finalizado(juego_t *juego)
 	if (!juego) {
 		return false;
 	}
-	if (juego->turnos == 3) {
+	if (juego->turnos == 9) {
 		juego->estado_juego = true;
 	}
 	return juego->estado_juego;
