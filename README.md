@@ -149,7 +149,7 @@ Por ultimo por parte de de la jugabiliad tenemos a `adversario_proxima_jugada` y
 
 ### Menu y main
 
-Por ultimo tenemos ya la implementacion de lo desarrollado anteriormente en un menu(`menu.h`,`menu.c`) interactuable por parte del usuario.Para ello se utilizo el TDA HASH para la creacion de un menu con comandos, asignados a preferencia del programa, el cual guarda una clave con la funcion asociada para hacer el llamado de dicha funcion.Sus complejidades de cada funcion son: 
+Por ultimo tenemos ya la implementacion de lo desarrollado anteriormente en un menu(`menu.h`,`menu.c`) interactuable por parte del usuario.Para ello se utilizo el TDA HASH para la creacion de un menu con comandos, asignados a preferencia del programa, el cual guarda una clave con la funcion asociada para hacer el llamado de dicha funcion,asi su utilizacion permite un mejor manero para la interaccion entre las diferentes funcionalidades del main.Sus complejidades de cada funcion son: 
 
 - `menu_crear` : se encarga de crear el menu , es O(1).
 - `menu_agregar_comando` : Asigna memoria para la estructura de `informacion_comando` , dicha complejidad depende de la complejidad promedio del `hash_insertar` , pero para esta situacion es O(1).
@@ -157,7 +157,110 @@ Por ultimo tenemos ya la implementacion de lo desarrollado anteriormente en un m
 - `destruir_elementos` : Funcion auxiliar para eliminar los elementos, solo hace una llama a `free` por lo tanto es O(1).
 - `menu_destruir`: libera la memoria almacenada, en el peor de los casos es O(n) .
 
-Explicado el menu y su funcionalidad, pasemos al main.
+Explicado el menu y su funcionalidad, pasemos al main.El main es el que se encarga de conectar todo lo visto anteriormente.Primero se crean los comandos el cual se desea que el usuario utilize para jugar , para ello se utiliza tambien un struct para guardar informacion de la partida: 
 
-## Respuestas a las preguntas teóricas
-Incluír acá las respuestas a las preguntas del enunciado (si aplica).
+```c
+
+struct estado_juego {
+	juego_t *juego; //struct juego
+	menu_t *menu; //el menu con los comandos
+	lista_t *pokemon_jugador; // pokemones del jugador
+	lista_t *pokemon_adversario; // pokemones del adversario
+	bool continuar; //indica si se desea continuar jugando
+	bool juego_iniciado; // indica cuando se desarolla el juego
+	bool archivo_cargado; // comprobar si un archivo se cargo, caso que si, no se podra cargar otro archivo hasta jugar la partida
+};
+
+```
+
+En el main inicializo los valores, y creo cada comando con la funciones principales del juego:
+
+```c
+struct estado_juego estado = { .continuar = true,
+				       .juego_iniciado = false,
+				       .archivo_cargado = false }; // inicializo los valores
+	menu_t *menu = menu_crear();
+	menu_agregar_comando(menu, "v", "Ver comandos", mostrar_comandos);
+	menu_agregar_comando(menu, "l", "Listar pokemones", listar_pokemones);
+	menu_agregar_comando(menu, "m", "Tabla de tipos", mostrar_tabla_tipos);
+	menu_agregar_comando(menu, "c", "Cargar un archivo", cargar_archivo);
+	menu_agregar_comando(menu, "j", "Iniciar la partida", jugar);
+	menu_agregar_comando(menu, "q", "Finalizar juego", finalizar_juego);
+	mostrar_comandos();
+```
+
+Explicacion breve de cada funcion: 
+
+- `mostrar_comandos` : simplemente es un print que muestra al usuario cada comando para interacturar.O(1).
+- `listar_pokemones` : muestra una lista de pokemones con la funcion auxiliar `mostrar_pokemon`. O(n).
+- `mostrar_tabla_tipos` : se encarga de hacer un printf con la explicacion de que es cada tipo.O(1).
+- `cargar_archivo` : carga el archivo que el usuario indique.Detalla si lo encuentra o no. O(1).
+- `jugar` : inicia el juego. O(1).
+- `finalizar_juego` : cambia el booleano de continuar , finalizando el programa. O(1).
+
+Pasando a explicar un poco mas en profundidad las funciones complejas y algun que otra funcion auxiliar, `cargar_archivo` y cada una de estas funciones reciben el struct estado, para cambiar sus valores o utilizarlos para informar respecto a algo, con ello, `cargar_archivo` utilizando `juego_cargar_pokemon` , con la linea ingresada por el usuario , cargara en caso de exito la lista de pokemones, e informara al usauario si la carga fue completa o no.Por otro lado jugar, siendo la funcion mas compleja del main, la misma a lo largo de 9 turnos, se encargara de pedir al usuario que pokemones desea usuar primero, guardarlos con la funcion auxiliar `guardar_pokemon_jugador`
+```c
+
+lista_t *guardar_pokemones_jugador(void *e, lista_t *lista, char nombre_1[],
+				   char nombre_2[], const char *nombre_3)
+{
+	if (!e) {
+		return NULL;
+	}
+	struct estado_juego *estado = e;
+	if (!estado) {
+		return NULL;
+	}
+	pokemon_t *pokemon_1 = lista_buscar_elemento(
+		juego_listar_pokemon(estado->juego), comparar_nombre_pokemon,
+		(void *)nombre_1);
+	pokemon_t *pokemon_2 = lista_buscar_elemento(
+		juego_listar_pokemon(estado->juego), comparar_nombre_pokemon,
+		(void *)nombre_2);
+	pokemon_t *pokemon_3 = lista_buscar_elemento(
+		juego_listar_pokemon(estado->juego), comparar_nombre_pokemon,
+		(void *)nombre_3);
+	lista_t *lista_con_pokemones = lista_crear();
+	lista_insertar(lista_con_pokemones, pokemon_1);
+	lista_insertar(lista_con_pokemones, pokemon_2);
+	lista_insertar(lista_con_pokemones, pokemon_3);
+	return lista_con_pokemones;
+}
+```
+Que sigue una funcionalidad similar a la seleccion de pokemon, una vez ya cargado los datos necesarios, pedira al usuario con la funcion `seleccionar_jugada` su jugada , y llamara a la funcnio `juego_jugar_turno` con la jugada que haya decido el usuario.Informa al usuario si hubo un error en el ataque y si no, informara la efectividad de aca ataque con la funcion .`mostrar_efectividad_ataque` y con `lista_con_cada_elemento` mostrara los datos del equipo con la funcion auxiliar `mostrar_datos_equipo` , funcion que muestra deacuerdo al jugador.
+Finalizado el juego se mostrara los puntos y quien gano, para asi liberar memoria ,liberando al usuario, las listas, y el juego.El usuario tiene la capacidad de volver cuantas veces lo desee.
+
+--- 
+
+### TDA UTILIZADOS:
+
+
+## TDA LISTA
+
+<div align="center">
+<img width="70%" src="img/1-TDALISTA.png">
+</div>
+
+- Operaciones del TDA LISTA:
+- Crear lista. O(1).
+- Insertar un elemento. O(1) al inicio O(n) en posicion especifica o al final.
+- Eliminar un elemento. O(1) al finicio O(n) en posicion especifica o al final.
+- Verificar si está vacía. O(1)
+- Ver elemento de la lista. O(1) al inicio O(n) en posicion especifica o al final.
+- Conseguir cantidad de elementos de la lista. O(n).
+- Destruir lista. O(n).
+
+## TDA HASH
+
+<div align="center">
+<img width="70%" src="img/2-TDAHASH.png">
+</div>
+
+- Operaciones del TDA HASH:
+- Crear el HASH O(1)
+- Insertar elementos O(1) O(n) si hay colisiones constantes
+- Quitar elementos O(1) O(n) si hay colisiones constantes
+- Obtener elemento O(1) O(n) si hay colisiones constantes
+- Verificar Si existe contenido O(1) O(n) si hay colisiones constantes
+- Recorrer el Hash con un iterador interno O(n)
+- Destruir el Hash y sus elementos O(n)
