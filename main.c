@@ -369,10 +369,7 @@ bool mostrar_tabla_tipos(void *e)
 	if (!estado) {
 		return false;
 	}
-	if (estado->archivo_cargado == false) {
-		printf("\nNo se a cargado ningun archivo, cargue un archivo para jugar\n");
-		return true;
-	}
+	
 	printf("╔══════════════════════╗\n");
 	printf("║ Tipos de Pokémon:    ║\n");
 	printf("╠══════════════════════╣\n");
@@ -383,6 +380,26 @@ bool mostrar_tabla_tipos(void *e)
 	printf("║ ROCA:      R         ║\n");
 	printf("║ PLANTA:    P         ║\n");
 	printf("╚══════════════════════╝\n");
+
+	printf("╔════════════════════════════════════════╗\n");
+	printf("║     ATAQUE       |     EFECTIVIDAD     ║\n");
+	printf("╠══════════════════╪════════════════════╣\n");
+	printf("║  FUEGO           |  Efectivo vs PLANTA ║\n");
+	printf("║                  |  Inefectivo vs AGUA ║\n");
+	printf("╠══════════════════╪════════════════════╣\n");
+	printf("║  PLANTA          |  Efectivo vs ROCA   ║\n");
+	printf("║                  |  Inefectivo vs FUEGO║\n");
+	printf("╠══════════════════╪════════════════════╣\n");
+	printf("║  ROCA            |  Efectivo vs ELECT. ║\n");
+	printf("║                  |  Inefectivo vs PLANTA║\n");
+	printf("╠══════════════════╪════════════════════╣\n");
+	printf("║  ELECTRICO       |  Efectivo vs AGUA  ║\n");
+	printf("║                  |  Inefectivo vs ROCA║\n");
+	printf("╠══════════════════╪════════════════════╣\n");
+	printf("╠══════════════════╪════════════════════╣\n");
+	printf("║  AGUA            |  Efectivo vs FUEGO. ║\n");
+	printf("║                  |  Inefectivo vs ELECT.║\n");
+	printf("╠══════════════════╪════════════════════╣\n");
 	return true;
 }
 
@@ -433,6 +450,9 @@ int main(int argc, char *argv[])
 		} else if (resultado == MENU_ERROR) {
 			printf("Hubo un error al ejecutar el menu, reintente nuevamente.\n");
 		}
+	}
+	if(estado.juego){
+		juego_destruir(estado.juego);
 	}
 	menu_destruir(menu);
 }

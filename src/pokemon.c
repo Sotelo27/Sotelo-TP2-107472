@@ -89,15 +89,13 @@ informacion_pokemon_t *achicar_vector(informacion_pokemon_t *pokemon_lista)
 {
 	informacion_pokemon_t *auxiliar_lista =
 		malloc(sizeof(informacion_pokemon_t));
-	if (!auxiliar_lista){
+	if (!auxiliar_lista) {
 		return NULL;
 	}
 	auxiliar_lista->pokemones = malloc(sizeof(pokemon_t));
 	auxiliar_lista->cantidad = 0;
 	for (int i = 0; i < pokemon_lista->cantidad - 1; i++) {
-		auxiliar_lista->pokemones[i] =
-			pokemon_lista->pokemones
-				[i]; 
+		auxiliar_lista->pokemones[i] = pokemon_lista->pokemones[i];
 		auxiliar_lista->cantidad++;
 	}
 	pokemon_destruir_todo(pokemon_lista);
@@ -107,8 +105,8 @@ informacion_pokemon_t *achicar_vector(informacion_pokemon_t *pokemon_lista)
 //De Lautaro Martin Sotelo
 //PRE:recibe un puntero a pokemon_lista que no sea null, un char_nombre del pokemon, y un char que referencia al TIPO del mismo.
 //POST:creandose un struct auxiliar, se guardan los datos del nombre del pokemon y el tipo en el puntero pokemon_lista.
-void lectura_datos_pokemon(informacion_pokemon_t *pokemon_lista, char char_nombre[25],
-		  char tipo)
+void lectura_datos_pokemon(informacion_pokemon_t *pokemon_lista,
+			   char char_nombre[25], char tipo)
 {
 	pokemon_t pokemon_aux;
 	pokemon_lista->pokemones = realloc(
@@ -116,22 +114,20 @@ void lectura_datos_pokemon(informacion_pokemon_t *pokemon_lista, char char_nombr
 		sizeof(pokemon_t) * ((size_t)(pokemon_lista->cantidad + 1)));
 	if (pokemon_lista->pokemones != NULL) {
 		strcpy(pokemon_aux.nombre, char_nombre);
-		pokemon_aux.tipo = verificar_tipo(
-			tipo); 
+		pokemon_aux.tipo = verificar_tipo(tipo);
 		pokemon_lista->pokemones[pokemon_lista->cantidad] = pokemon_aux;
-		pokemon_lista->cantidad++; 
+		pokemon_lista->cantidad++;
 	}
 }
 
 //De Lautaro Martin Sotelo
 //PRE :recibe un puntero a pokemon_lista que no sea NULL,tipo char nombre, un char de tipo, un unsigned int del poder, y la pos (servira para ubicar los ataques en la lista).
 //POST:se accede a los datos almacenados en el puntero pokemon_lista y se los guarda en el espacio de ataque_pokemon.
-void lectura_datos_ataque(informacion_pokemon_t *pokemon_lista, char char_nombre[25],
-		  char tipo, unsigned int poder_ataque, int pos)
+void lectura_datos_ataque(informacion_pokemon_t *pokemon_lista,
+			  char char_nombre[25], char tipo,
+			  unsigned int poder_ataque, int pos)
 {
-	pokemon_lista
-		->pokemones[pokemon_lista->cantidad -
-			    1] 
+	pokemon_lista->pokemones[pokemon_lista->cantidad - 1]
 		.ataque_pokemon[pos]
 		.poder = poder_ataque;
 	pokemon_lista->pokemones[pokemon_lista->cantidad - 1]
@@ -151,12 +147,10 @@ int validaciones_pokes_correctos(int correctos,
 {
 	int validacion = 1;
 	if (correctos == 0) {
-		pokemon_lista->cantidad =
-			1; 
+		pokemon_lista->cantidad = 1;
 		validacion = -1;
 	} else if (correctos == 1 && correctos < pokemon_lista->cantidad) {
-		pokemon_lista->cantidad =
-			correctos + 1; 
+		pokemon_lista->cantidad = correctos + 1;
 		validacion = -1;
 
 	} else if (correctos > 1 && correctos < pokemon_lista->cantidad - 1) {
@@ -174,10 +168,10 @@ void leer_linea(FILE *archivo, informacion_pokemon_t *pokemon_lista,
 {
 	char linea[100];
 	int pos = 0;
-	int validar_aux = 1; 
-	int validar_ataque = 1; 
+	int validar_aux = 1;
+	int validar_ataque = 1;
 	int contador_lineas = 0;
-	int correctos = 0; 
+	int correctos = 0;
 	while (fgets(linea, sizeof(linea), archivo) != NULL &&
 	       validar_aux == 1 && validar_ataque == 1) {
 		unsigned int poder_ataque = 0;
@@ -186,8 +180,7 @@ void leer_linea(FILE *archivo, informacion_pokemon_t *pokemon_lista,
 		int resultado = sscanf(linea, "%[^;];%c;%u", char_nombre, &tipo,
 				       &poder_ataque);
 		validar_aux = validar_datos(tipo);
-		if (contador_lineas == 4 &&
-		    pos < 3) { 
+		if (contador_lineas == 4 && pos < 3) {
 			validar_ataque = -1;
 
 		} else if (contador_lineas == 4 && pos == 3) {
@@ -201,7 +194,7 @@ void leer_linea(FILE *archivo, informacion_pokemon_t *pokemon_lista,
 			contador_lineas++;
 		} else if (resultado == 3 && validar_aux == 1) {
 			lectura_datos_ataque(pokemon_lista, char_nombre, tipo,
-				     poder_ataque, pos);
+					     poder_ataque, pos);
 			pos++;
 			contador_lineas++;
 		}
@@ -213,7 +206,7 @@ void leer_linea(FILE *archivo, informacion_pokemon_t *pokemon_lista,
 //PRE y POST detallas en el .h (pokemon.h)
 informacion_pokemon_t *pokemon_cargar_archivo(const char *path)
 {
-	if (path == NULL) { 
+	if (path == NULL) {
 		return NULL;
 	}
 	informacion_pokemon_t *pokemon_lista =
@@ -229,22 +222,19 @@ informacion_pokemon_t *pokemon_cargar_archivo(const char *path)
 	}
 	FILE *archivo = fopen(path, "r");
 	if (archivo == NULL) {
-		pokemon_destruir_todo(
-			pokemon_lista); 
+		pokemon_destruir_todo(pokemon_lista);
 		return NULL;
 	}
 	int validar = 0;
 	leer_linea(archivo, pokemon_lista, &validar);
 	fclose(archivo);
-	if (validar == -1 && pokemon_lista->cantidad > 1) { 
+	if (validar == -1 && pokemon_lista->cantidad > 1) {
 		pokemon_lista = achicar_vector(pokemon_lista);
-	} else if (pokemon_lista->cantidad == 1 &&
-		   validar == -1) { 
+	} else if (pokemon_lista->cantidad == 1 && validar == -1) {
 		pokemon_destruir_todo(pokemon_lista);
 		return NULL;
 	}
-	ordenar_alfabeticamente(
-		pokemon_lista); 
+	ordenar_alfabeticamente(pokemon_lista);
 	return pokemon_lista;
 }
 
@@ -281,9 +271,7 @@ const char *pokemon_nombre(pokemon_t *pokemon)
 //PRE y POST detallas en el .h (pokemon.h)
 enum TIPO pokemon_tipo(pokemon_t *pokemon)
 {
-	if (pokemon != NULL &&
-	    pokemon->tipo !=
-		    -1) { 
+	if (pokemon != NULL && pokemon->tipo != -1) {
 		return pokemon->tipo;
 	}
 	return NORMAL;
@@ -293,8 +281,7 @@ enum TIPO pokemon_tipo(pokemon_t *pokemon)
 const struct ataque *pokemon_buscar_ataque(pokemon_t *pokemon,
 					   const char *nombre)
 {
-	for (int i = 0; i < MAX_ATAQUES;
-	     i++) { 
+	for (int i = 0; i < MAX_ATAQUES; i++) {
 		if (!strcmp(nombre, pokemon->ataque_pokemon[i].nombre)) {
 			return &pokemon->ataque_pokemon[i];
 		}
@@ -307,7 +294,7 @@ int con_cada_pokemon(informacion_pokemon_t *ip, void (*f)(pokemon_t *, void *),
 		     void *aux)
 {
 	int cant_pokemon = 0;
-	if (ip == NULL || f == NULL) { 
+	if (ip == NULL || f == NULL) {
 		return 0;
 	}
 	for (int i = 0; i < ip->cantidad; i++) {
@@ -322,11 +309,10 @@ int con_cada_ataque(pokemon_t *pokemon,
 		    void (*f)(const struct ataque *, void *), void *aux)
 {
 	int cant_ataques = 0;
-	if (pokemon == NULL || f == NULL) { 
+	if (pokemon == NULL || f == NULL) {
 		return 0;
 	}
-	for (int i = 0; i < MAX_ATAQUES;
-	     i++) { 
+	for (int i = 0; i < MAX_ATAQUES; i++) {
 		f(&pokemon->ataque_pokemon[i], aux);
 		cant_ataques++;
 	}
@@ -336,7 +322,7 @@ int con_cada_ataque(pokemon_t *pokemon,
 //PRE y POST detallas en el .h (pokemon.h)
 void pokemon_destruir_todo(informacion_pokemon_t *ip)
 {
-	if (ip) { 
+	if (ip) {
 		free(ip->pokemones);
 		free(ip);
 	}

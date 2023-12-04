@@ -68,7 +68,6 @@ JUEGO_ESTADO juego_cargar_pokemon(juego_t *juego, char *archivo)
 		return ERROR_GENERAL;
 	}
 
-
 	if (!juego->lista_pokemon) {
 		juego->lista_pokemon = lista_crear();
 		if (!juego->lista_pokemon) {
@@ -329,7 +328,7 @@ bool juego_finalizado(juego_t *juego)
 	if (!juego) {
 		return false;
 	}
-	if (juego->turnos == 9) {
+	if (juego->turnos == 3) {
 		juego->estado_juego = true;
 	}
 	return juego->estado_juego;
